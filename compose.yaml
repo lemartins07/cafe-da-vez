@@ -1,0 +1,22 @@
+name: cafe-da-vez
+
+services:
+  db:
+    image: postgres:17.9-alpine
+    environment:
+      POSTGRES_DB: cafe_da_vez
+      POSTGRES_PASSWORD: cafe_da_vez
+      POSTGRES_USER: cafe_da_vez
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U cafe_da_vez -d cafe_da_vez']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  postgres_data:

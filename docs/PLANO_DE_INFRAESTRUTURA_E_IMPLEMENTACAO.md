@@ -312,14 +312,22 @@ Concluída quando `npm ci`, lint, typecheck e build passarem em uma instalação
 
 ### Fase 2 — Docker e Prisma
 
-1. Criar `compose.yaml` com PostgreSQL e volume.
-2. Instalar e configurar Prisma.
-3. Criar o modelo inicial e `src/lib/prisma.ts`.
-4. Criar migration e seed.
-5. Adicionar scripts `db:*`.
+1. [x] Criar `compose.yaml` com PostgreSQL e volume.
+2. [x] Instalar e configurar Prisma.
+3. [x] Criar o modelo inicial e `src/lib/prisma.ts`.
+4. [x] Criar migration e seed.
+5. [x] Adicionar scripts `db:*`.
 
 Concluída quando um banco vazio puder ser criado e populado somente pelos comandos
 documentados, preservando dados após reiniciar o container.
+
+> Estado em 11/09/2026: os arquivos, scripts, schema, migration inicial e seed
+> estão prontos. O schema foi validado e o Prisma Client foi gerado com sucesso.
+> Falta somente validar a execução real de `db:up`, `db:deploy`, `db:seed` e a
+> persistência do volume, porque o Docker ainda não está instalado nesta máquina.
+> Overrides temporários atualizam `deepmerge-ts` e `mysql2`, dependências internas
+> do Prisma CLI, enquanto uma versão estável do Prisma com as correções não é
+> publicada; eles devem ser removidos assim que o Prisma incorporar essas versões.
 
 ### Fase 3 — Autenticação privada
 
