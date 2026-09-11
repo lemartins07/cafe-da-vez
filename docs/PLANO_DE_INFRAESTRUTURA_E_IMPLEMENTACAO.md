@@ -329,6 +329,23 @@ documentados, preservando dados após reiniciar o container.
 > do Prisma CLI, enquanto uma versão estável do Prisma com as correções não é
 > publicada; eles devem ser removidos assim que o Prisma incorporar essas versões.
 
+### Fase 2.5 — Separação do template
+
+1. [x] Mover o código legado para `src/template`.
+2. [x] Publicar o catálogo em `/template` e suas páginas em um catch-all dedicado.
+3. [x] Criar layouts raiz separados para o produto e para o catálogo.
+4. [x] Isolar os assets em `public/template/images`.
+5. [x] Criar a estrutura inicial de `components` e `features` do produto.
+6. [x] Impedir imports do template no código real por meio do ESLint.
+7. [x] Validar `/`, `/template` e uma rota interna do catálogo em execução.
+
+O template continua navegável, mas não faz parte da arquitetura do produto. Um
+componente escolhido como referência deverá ser copiado e adaptado para as APIs
+do Next.js antes de entrar no Café da Vez.
+
+> Validado em 11/09/2026 com build de produção e smoke tests HTTP em `/`,
+> `/template`, `/template/analytics` e `/template/images/logo/logo.svg`.
+
 ### Fase 3 — Autenticação privada
 
 1. Configurar Supabase Auth para browser e servidor.
