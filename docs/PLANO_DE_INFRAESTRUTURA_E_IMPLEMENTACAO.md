@@ -298,15 +298,17 @@ Problemas de banco serão corrigidos por uma nova migration, preservando dados.
 3. [x] Validar variáveis com Zod.
 4. [x] Configurar Prettier e scripts de qualidade.
 5. [x] Inicializar o Git e criar `main` e `develop`.
-6. [ ] Publicar e proteger `develop` e `main` no GitHub.
+6. [x] Publicar `develop` e `main` no GitHub.
+7. [ ] Proteger `develop` e `main` nas configurações do GitHub.
 
 Concluída quando `npm ci`, lint, typecheck e build passarem em uma instalação limpa.
 
 > Estado em 11/09/2026: a fundação local está pronta. O repositório Git foi
 > inicializado, o primeiro commit foi criado em `main` e a branch `develop` está
-> ativa. A publicação e a proteção das branches aguardam a criação do repositório
-> privado no GitHub. O ESLint permanece temporariamente na linha 9 porque os plugins
-> React do `eslint-config-next` 16.3.4 ainda não são compatíveis com ESLint 10.
+> ativa. As duas branches foram publicadas no repositório privado
+> `lemartins07/cafe-da-vez`. Resta configurar as regras de proteção no GitHub. O
+> ESLint permanece temporariamente na linha 9 porque os plugins React do
+> `eslint-config-next` 16.3.4 ainda não são compatíveis com ESLint 10.
 
 ### Fase 2 — Docker e Prisma
 
