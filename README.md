@@ -10,8 +10,8 @@ O repositório está na etapa de configuração da base:
 - Next.js 16 com App Router e Webpack;
 - React 19 e TypeScript;
 - Tailwind CSS 4;
-- componentes do TailAdmin preservados;
-- rotas legadas do template funcionando por uma rota catch-all do Next.js;
+- código real isolado do template legado;
+- catálogo completo do TailAdmin disponível em `/template`;
 - identidade visual e paleta corporativa ainda não aplicadas.
 
 O escopo e as decisões de arquitetura estão em
@@ -63,6 +63,29 @@ npm run dev
 ```
 
 A aplicação ficará disponível em `http://localhost:3000`.
+
+O catálogo visual do template ficará disponível em
+`http://localhost:3000/template`.
+
+## Organização do código
+
+```text
+src/
+├── app/
+│   ├── (cafe)/         # rotas e estilos do Café da Vez
+│   └── (reference)/    # entrada isolada do catálogo em /template
+├── components/         # componentes compartilhados do produto
+├── features/           # funcionalidades organizadas por domínio
+├── generated/prisma/   # cliente gerado, não versionado
+├── lib/                # infraestrutura compartilhada
+└── template/           # TailAdmin legado, somente para referência
+```
+
+O código do produto não pode importar diretamente de `src/template`. Para
+aproveitar algo do catálogo, copie o componente para `src/components` ou para a
+feature correspondente e adapte navegação, dados e estilos para o Next.js.
+
+Os assets exclusivos do catálogo ficam em `public/template/images`.
 
 ## Verificações
 
