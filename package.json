@@ -6,13 +6,24 @@
   "packageManager": "npm@11.16.0",
   "scripts": {
     "dev": "next dev --webpack",
+    "prebuild": "prisma generate",
     "build": "next build --webpack",
+    "postinstall": "prisma generate",
     "start": "next start",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "quality": "npm run format:check && npm run lint && npm run typecheck && npm run build"
+    "quality": "npm run format:check && npm run lint && npm run typecheck && npm run build",
+    "db:up": "docker compose up -d --wait db",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f db",
+    "db:reset": "docker compose down --volumes",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
   },
   "engines": {
     "node": "24.x",
@@ -26,12 +37,16 @@
     "@fullcalendar/react": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
     "@popperjs/core": "^2.11.8",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "@react-jvectormap/core": "^1.0.4",
     "@react-jvectormap/world": "^1.1.2",
     "@tailwindcss/forms": "^0.5.10",
     "apexcharts": "^4.1.0",
+    "dotenv": "^17.4.2",
     "flatpickr": "^4.6.13",
     "next": "^16.3.4",
+    "pg": "^8.23.0",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dnd": "^16.0.1",
@@ -50,6 +65,7 @@
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "24.3.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.39.5",
@@ -57,7 +73,9 @@
     "postcss": "^8.5.2",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "prisma": "^7.10.0",
     "tailwindcss": "^4.0.0",
+    "tsx": "^4.23.13",
     "typescript": "~5.7.2"
   },
   "overrides": {
@@ -71,6 +89,8 @@
     "@react-jvectormap/world": {
       "react": "^16.8.0 || ^17 || ^18 || ^19",
       "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
-    }
+    },
+    "deepmerge-ts": "8.0.2",
+    "mysql2": "3.24.4"
   }
 }

@@ -1,0 +1,149 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TeamRole {
+  ADMIN
+  MEMBER
+}
+
+enum MemberStatus {
+  ACTIVE
+  PAUSED
+}
+
+enum RotationType {
+  MAKE_COFFEE
+  BUY_COFFEE
+}
+
+enum TurnAction {
+  COMPLETED
+  SKIPPED
+  PAUSED
+  RESUMED
+  REORDERED
+  UNDONE
+}
+
+model Team {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(120)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  allowedEmails AllowedEmail[]
+  members       TeamMember[]
+  rotations     Rotation[]
+
+  @@map("teams")
+}
+
+model Profile {
+  id          String   @id @db.Uuid
+  email       String   @unique @db.VarChar(320)
+  displayName String   @map("display_name") @db.VarChar(120)
+  avatarUrl   String?  @map("avatar_url") @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  memberships         TeamMember[]
+  rotationMemberships RotationMember[]
+  assignedTurnEvents  TurnEvent[]      @relation("TurnSubject")
+  performedTurnEvents TurnEvent[]      @relation("TurnPerformer")
+
+  @@map("profiles")
+}
+
+model AllowedEmail {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId    String   @map("team_id") @db.Uuid
+  email     String   @db.VarChar(320)
+  role      TeamRole @default(MEMBER)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, email])
+  @@index([email])
+  @@map("allowed_emails")
+}
+
+model TeamMember {
+  teamId    String       @map("team_id") @db.Uuid
+  profileId String       @map("profile_id") @db.Uuid
+  role      TeamRole     @default(MEMBER)
+  status    MemberStatus @default(ACTIVE)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  team    Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+
+  @@id([teamId, profileId])
+  @@index([profileId])
+  @@map("team_members")
+}
+
+model Rotation {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId          String       @map("team_id") @db.Uuid
+  type            RotationType
+  name            String       @db.VarChar(120)
+  currentPosition Int          @default(0) @map("current_position")
+  version         Int          @default(0)
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  team    Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  members RotationMember[]
+  events  TurnEvent[]
+
+  @@unique([teamId, type])
+  @@index([teamId])
+  @@map("rotations")
+}
+
+model RotationMember {
+  rotationId String   @map("rotation_id") @db.Uuid
+  profileId  String   @map("profile_id") @db.Uuid
+  position   Int
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rotation Rotation @relation(fields: [rotationId], references: [id], onDelete: Cascade)
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Restrict)
+
+  @@id([rotationId, profileId])
+  @@unique([rotationId, position])
+  @@index([profileId])
+  @@map("rotation_members")
+}
+
+model TurnEvent {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rotationId    String     @map("rotation_id") @db.Uuid
+  subjectId     String     @map("subject_id") @db.Uuid
+  subjectName   String     @map("subject_name") @db.VarChar(120)
+  action        TurnAction
+  reason        String?    @db.VarChar(500)
+  requestId     String     @unique @map("request_id") @db.Uuid
+  performedById String     @map("performed_by_id") @db.Uuid
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  rotation    Rotation @relation(fields: [rotationId], references: [id], onDelete: Restrict)
+  subject     Profile  @relation("TurnSubject", fields: [subjectId], references: [id], onDelete: Restrict)
+  performedBy Profile  @relation("TurnPerformer", fields: [performedById], references: [id], onDelete: Restrict)
+
+  @@index([rotationId, createdAt])
+  @@index([subjectId])
+  @@index([performedById])
+  @@map("turn_events")
+}
