@@ -32,6 +32,9 @@ next-env.d.ts
 *.db
 *.db-journal
 
+# Generated Prisma Client
+/src/generated/prisma/
+
 # Editors and operating systems
 .DS_Store
 .idea/

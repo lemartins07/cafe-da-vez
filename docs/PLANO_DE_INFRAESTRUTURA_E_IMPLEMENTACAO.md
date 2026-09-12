@@ -297,26 +297,54 @@ Problemas de banco serão corrigidos por uma nova migration, preservando dados.
 2. [x] Completar `.gitignore` e criar `.env.example`.
 3. [x] Validar variáveis com Zod.
 4. [x] Configurar Prettier e scripts de qualidade.
-5. [ ] Criar `develop` e proteger `develop` e `main`.
+5. [x] Inicializar o Git e criar `main` e `develop`.
+6. [x] Publicar `develop` e `main` no GitHub.
+7. [ ] Proteger `develop` e `main` nas configurações do GitHub.
 
 Concluída quando `npm ci`, lint, typecheck e build passarem em uma instalação limpa.
 
-> Estado em 11/09/2026: a fundação local está pronta. A criação e a proteção das
-> branches aguardam a reinicialização ou reconexão deste diretório com o GitHub,
-> pois o diretório `.git` atual não contém um repositório válido. O ESLint permanece
-> temporariamente na linha 9 porque os plugins React do `eslint-config-next` 16.3.4
-> ainda não são compatíveis com ESLint 10.
+> Estado em 11/09/2026: a fundação local está pronta. O repositório Git foi
+> inicializado, o primeiro commit foi criado em `main` e a branch `develop` está
+> ativa. As duas branches foram publicadas no repositório privado
+> `lemartins07/cafe-da-vez`. Resta configurar as regras de proteção no GitHub. O
+> ESLint permanece temporariamente na linha 9 porque os plugins React do
+> `eslint-config-next` 16.3.4 ainda não são compatíveis com ESLint 10.
 
 ### Fase 2 — Docker e Prisma
 
-1. Criar `compose.yaml` com PostgreSQL e volume.
-2. Instalar e configurar Prisma.
-3. Criar o modelo inicial e `src/lib/prisma.ts`.
-4. Criar migration e seed.
-5. Adicionar scripts `db:*`.
+1. [x] Criar `compose.yaml` com PostgreSQL e volume.
+2. [x] Instalar e configurar Prisma.
+3. [x] Criar o modelo inicial e `src/lib/prisma.ts`.
+4. [x] Criar migration e seed.
+5. [x] Adicionar scripts `db:*`.
 
 Concluída quando um banco vazio puder ser criado e populado somente pelos comandos
 documentados, preservando dados após reiniciar o container.
+
+> Validada em 12/09/2026 com Docker Desktop e WSL 2. O PostgreSQL iniciou com
+> healthcheck saudável, a migration inicial e o seed foram aplicados e os dados
+> permaneceram no volume após destruir e recriar o container. Antes e depois do
+> reinício foram encontrados 3 perfis, 2 filas e 1 evento. Overrides temporários
+> atualizam `deepmerge-ts` e `mysql2`, dependências internas do Prisma CLI,
+> enquanto uma versão estável do Prisma com as correções não é publicada; eles
+> devem ser removidos assim que o Prisma incorporar essas versões.
+
+### Fase 2.5 — Separação do template
+
+1. [x] Mover o código legado para `src/template`.
+2. [x] Publicar o catálogo em `/template` e suas páginas em um catch-all dedicado.
+3. [x] Criar layouts raiz separados para o produto e para o catálogo.
+4. [x] Isolar os assets em `public/template/images`.
+5. [x] Criar a estrutura inicial de `components` e `features` do produto.
+6. [x] Impedir imports do template no código real por meio do ESLint.
+7. [x] Validar `/`, `/template` e uma rota interna do catálogo em execução.
+
+O template continua navegável, mas não faz parte da arquitetura do produto. Um
+componente escolhido como referência deverá ser copiado e adaptado para as APIs
+do Next.js antes de entrar no Café da Vez.
+
+> Validado em 11/09/2026 com build de produção e smoke tests HTTP em `/`,
+> `/template`, `/template/analytics` e `/template/images/logo/logo.svg`.
 
 ### Fase 3 — Autenticação privada
 
@@ -378,9 +406,9 @@ de produção depende do Prisma, CI e separação dos segredos.
 
 ## Definition of Done
 
-- [ ] `npm ci` instala o projeto de forma reproduzível.
-- [ ] PostgreSQL local inicia com um comando e mantém os dados.
-- [ ] Migrations e seed recriam um banco vazio.
+- [x] `npm ci` instala o projeto de forma reproduzível.
+- [x] PostgreSQL local inicia com um comando e mantém os dados.
+- [x] Migrations e seed recriam um banco vazio.
 - [ ] Nenhum segredo ou dado real está versionado.
 - [ ] Somente e-mails autorizados acessam páginas privadas.
 - [ ] Regras das filas possuem testes unitários.
