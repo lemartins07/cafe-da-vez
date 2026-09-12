@@ -7,8 +7,8 @@ const localDatabaseUrl =
 loadEnv({ path: '.env', quiet: true });
 loadEnv({ path: '.env.local', override: true, quiet: true });
 
-process.env.DATABASE_URL ??= localDatabaseUrl;
-process.env.DIRECT_URL ??= process.env.DATABASE_URL;
+process.env.DATABASE_URL ||= localDatabaseUrl;
+process.env.DIRECT_URL ||= process.env.DATABASE_URL;
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
