@@ -321,13 +321,13 @@ Concluída quando `npm ci`, lint, typecheck e build passarem em uma instalação
 Concluída quando um banco vazio puder ser criado e populado somente pelos comandos
 documentados, preservando dados após reiniciar o container.
 
-> Estado em 11/09/2026: os arquivos, scripts, schema, migration inicial e seed
-> estão prontos. O schema foi validado e o Prisma Client foi gerado com sucesso.
-> Falta somente validar a execução real de `db:up`, `db:deploy`, `db:seed` e a
-> persistência do volume, porque o Docker ainda não está instalado nesta máquina.
-> Overrides temporários atualizam `deepmerge-ts` e `mysql2`, dependências internas
-> do Prisma CLI, enquanto uma versão estável do Prisma com as correções não é
-> publicada; eles devem ser removidos assim que o Prisma incorporar essas versões.
+> Validada em 12/09/2026 com Docker Desktop e WSL 2. O PostgreSQL iniciou com
+> healthcheck saudável, a migration inicial e o seed foram aplicados e os dados
+> permaneceram no volume após destruir e recriar o container. Antes e depois do
+> reinício foram encontrados 3 perfis, 2 filas e 1 evento. Overrides temporários
+> atualizam `deepmerge-ts` e `mysql2`, dependências internas do Prisma CLI,
+> enquanto uma versão estável do Prisma com as correções não é publicada; eles
+> devem ser removidos assim que o Prisma incorporar essas versões.
 
 ### Fase 2.5 — Separação do template
 
@@ -406,9 +406,9 @@ de produção depende do Prisma, CI e separação dos segredos.
 
 ## Definition of Done
 
-- [ ] `npm ci` instala o projeto de forma reproduzível.
-- [ ] PostgreSQL local inicia com um comando e mantém os dados.
-- [ ] Migrations e seed recriam um banco vazio.
+- [x] `npm ci` instala o projeto de forma reproduzível.
+- [x] PostgreSQL local inicia com um comando e mantém os dados.
+- [x] Migrations e seed recriam um banco vazio.
 - [ ] Nenhum segredo ou dado real está versionado.
 - [ ] Somente e-mails autorizados acessam páginas privadas.
 - [ ] Regras das filas possuem testes unitários.
