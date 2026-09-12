@@ -40,10 +40,14 @@ https://*-leandro-martins-projects-a2887951.vercel.app/**
 Quando o domínio de produção existir, use sua URL exata como **Site URL** e
 adicione-a também à lista de redirects permitidos.
 
-## 4. Configurar o e-mail de magic link
+## 4. E-mail de magic link
 
-Em **Authentication → Email Templates → Magic Link**, faça o link chegar ao
-callback do aplicativo usando o token hash:
+O callback aceita o link padrão do Supabase. Não é necessário editar o template
+para iniciar os testes. O SMTP padrão só envia para membros da organização do
+Supabase e possui um limite baixo de mensagens.
+
+Quando um SMTP próprio for configurado, o template pode apontar diretamente para
+o callback usando o token hash:
 
 ```html
 <a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email">
@@ -63,9 +67,23 @@ Depois de alterar variáveis, faça um novo deploy do Preview.
 
 ## 6. Autorizar o primeiro integrante
 
-Antes de solicitar o link, o e-mail precisa existir em `AllowedEmail`. No banco
-local, o seed cria contas fictícias para validar o fluxo. A forma de cadastrar o
-primeiro administrador no Supabase será adicionada antes de testar o fluxo real.
+Antes de solicitar o link, aplique as migrations no banco do Supabase e cadastre
+o administrador. No `.env.local`, informe sem versionar:
+
+```dotenv
+BOOTSTRAP_ADMIN_EMAIL=seu-email@empresa.com
+BOOTSTRAP_TEAM_NAME=Café da Vez
+```
+
+Em seguida, execute:
+
+```bash
+npm run db:deploy
+npm run db:bootstrap
+```
+
+O bootstrap pode ser executado novamente com segurança: ele reutiliza o time e
+atualiza o e-mail informado para o papel `ADMIN`.
 
 ## Validação
 
