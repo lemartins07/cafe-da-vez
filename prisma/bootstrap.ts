@@ -48,9 +48,7 @@ async function main() {
     },
   });
 
-  console.info(
-    `Administrator ${authorizedAdminEmail} authorized for team ${teamName}.`,
-  );
+  console.info('Initial administrator authorized successfully.');
 }
 
 main()
