@@ -354,15 +354,15 @@ do Next.js antes de entrar no Café da Vez.
 4. [x] Proteger rotas privadas.
 5. [x] Verificar `AllowedEmail`/`TeamMember` pelo Prisma.
 6. [x] Cadastrar o primeiro administrador.
-7. [ ] Testar usuário autorizado, não autorizado e anônimo.
+7. [x] Testar usuário autorizado, não autorizado e anônimo.
 
 Concluída quando somente um integrante ativo conseguir acessar a aplicação.
 
 > Estado em 13/09/2026: escolhido magic link com Supabase Auth. A integração SSR,
 > o callback PKCE, a proteção da aplicação e a autorização no Prisma estão
 > implementados e passam no build. O Supabase de Preview recebeu a migration
-> inicial e o bootstrap do primeiro administrador. Falta validar no Preview os
-> acessos autorizado, não autorizado e anônimo.
+> inicial e o bootstrap do primeiro administrador. O fluxo real de acesso foi
+> validado no Preview em 13/09/2026; a Fase 3 está concluída.
 
 ### Fase 4 — Regras e testes unitários
 
