@@ -66,7 +66,6 @@ Supabase
 - Supabase Auth para autenticação;
 - Zod para validação de dados;
 - Vitest para testar as regras das filas;
-- Playwright para testar os principais fluxos do usuário;
 - Vercel para hospedagem e gerenciamento das variáveis de ambiente.
 
 ### Template base
