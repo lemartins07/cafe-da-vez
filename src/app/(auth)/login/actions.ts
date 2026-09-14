@@ -1,26 +1,12 @@
 'use server';
 
-import { z } from 'zod';
 import { isEmailAllowed } from '@/features/auth/authorization';
+import {
+  loginSchema,
+  type LoginActionState,
+} from '@/features/auth/login-schema';
 import { env } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
-
-const loginSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Informe seu e-mail corporativo.')
-    .email('Informe um e-mail válido.')
-    .transform((email) => email.toLowerCase()),
-});
-
-export type LoginActionState = {
-  fieldErrors?: { email?: string[] };
-  message?: string;
-  status: 'error' | 'idle' | 'success';
-};
-
-export const initialLoginState: LoginActionState = { status: 'idle' };
 
 export async function requestMagicLink(
   _previousState: LoginActionState,

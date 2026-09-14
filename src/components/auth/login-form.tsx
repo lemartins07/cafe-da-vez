@@ -1,22 +1,49 @@
 'use client';
 
-import { useActionState } from 'react';
-import {
-  initialLoginState,
-  requestMagicLink,
-} from '@/app/(auth)/login/actions';
+import { useActionState, useState } from 'react';
+import { requestMagicLink } from '@/app/(auth)/login/actions';
+import { initialLoginState, loginSchema } from '@/features/auth/login-schema';
 import { LoginSubmitButton } from './login-submit-button';
 
 export function LoginForm() {
+  const [email, setEmail] = useState('');
+  const [clientError, setClientError] = useState<string>();
+  const [submittedEmail, setSubmittedEmail] = useState<string>();
   const [state, formAction] = useActionState(
     requestMagicLink,
     initialLoginState,
   );
-  const emailError = state.fieldErrors?.email?.[0];
+  const validation = loginSchema.safeParse({ email });
+  const showActionMessage = submittedEmail === email && state.message;
+  const emailError =
+    clientError ??
+    (submittedEmail === email ? state.fieldErrors?.email?.[0] : undefined);
+
+  const validateEmail = (value: string) => {
+    const result = loginSchema.safeParse({ email: value });
+    setClientError(
+      result.success
+        ? undefined
+        : result.error.flatten().fieldErrors.email?.[0],
+    );
+  };
 
   return (
-    <form action={formAction} className="space-y-6" noValidate>
-      {state.message ? (
+    <form
+      action={formAction}
+      className="space-y-6"
+      noValidate
+      onSubmit={(event) => {
+        if (!validation.success) {
+          event.preventDefault();
+          validateEmail(email);
+          return;
+        }
+
+        setSubmittedEmail(email);
+      }}
+    >
+      {showActionMessage ? (
         <div
           className={`rounded-lg border p-4 text-sm ${
             state.status === 'success'
@@ -25,7 +52,7 @@ export function LoginForm() {
           }`}
           role={state.status === 'success' ? 'status' : 'alert'}
         >
-          {state.message}
+          {showActionMessage}
         </div>
       ) : null}
 
@@ -46,8 +73,15 @@ export function LoginForm() {
           }`}
           id="email"
           name="email"
+          onBlur={() => validateEmail(email)}
+          onChange={(event) => {
+            const value = event.target.value;
+            setEmail(value);
+            validateEmail(value);
+          }}
           placeholder="voce@empresa.com"
           type="email"
+          value={email}
         />
         {emailError ? (
           <span
@@ -59,7 +93,7 @@ export function LoginForm() {
         ) : null}
       </label>
 
-      <LoginSubmitButton />
+      <LoginSubmitButton disabled={!validation.success} />
     </form>
   );
 }
