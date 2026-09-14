@@ -371,7 +371,7 @@ Concluída quando somente um integrante ativo conseguir acessar a aplicação.
 3. [x] Integrar o usuário autenticado e o logout ao menu de perfil.
 4. [x] Preservar o tema claro/escuro e a preferência do usuário.
 5. [x] Criar a navegação inicial de Início, Filas, Integrantes e Histórico.
-6. [ ] Validar visualmente o shell no Preview em desktop e dispositivo móvel.
+6. [x] Validar visualmente o shell no Preview em desktop e dispositivo móvel.
 7. [x] Adaptar a página de login ao mesmo design system.
 
 Os componentes foram copiados conceitualmente do catálogo e adaptados em
@@ -381,6 +381,10 @@ visual da empresa.
 
 Concluída quando a navegação, responsividade, menu do usuário e os dois temas
 forem validados no Preview.
+
+> Validada no Preview em 13/09/2026. Login por magic link com Resend, validação
+> do formulário, navegação, responsividade, menu do usuário e temas claro e
+> escuro estão funcionando; a Fase 3.5 está concluída.
 
 ### Fase 4 — Regras e testes unitários
 
