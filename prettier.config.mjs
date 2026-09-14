@@ -3,7 +3,7 @@ const config = {
   plugins: ['prettier-plugin-tailwindcss'],
   semi: true,
   singleQuote: true,
-  tailwindStylesheet: './src/app/(cafe)/globals.css',
+  tailwindStylesheet: './src/styles/tailadmin.css',
   trailingComma: 'all',
   overrides: [
     {

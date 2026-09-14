@@ -348,13 +348,43 @@ do Next.js antes de entrar no Café da Vez.
 
 ### Fase 3 — Autenticação privada
 
-1. Configurar Supabase Auth para browser e servidor.
-2. Criar login, callback e logout.
-3. Proteger rotas privadas.
-4. Verificar `AllowedEmail`/`TeamMember` pelo Prisma.
-5. Testar usuário autorizado, não autorizado e anônimo.
+1. [x] Configurar o projeto Supabase e suas credenciais de Preview.
+2. [x] Configurar os clientes Supabase para browser, servidor e proxy.
+3. [x] Criar login por magic link, callback e logout.
+4. [x] Proteger rotas privadas.
+5. [x] Verificar `AllowedEmail`/`TeamMember` pelo Prisma.
+6. [x] Cadastrar o primeiro administrador.
+7. [x] Testar usuário autorizado, não autorizado e anônimo.
 
 Concluída quando somente um integrante ativo conseguir acessar a aplicação.
+
+> Estado em 13/09/2026: escolhido magic link com Supabase Auth. A integração SSR,
+> o callback PKCE, a proteção da aplicação e a autorização no Prisma estão
+> implementados e passam no build. O Supabase de Preview recebeu a migration
+> inicial e o bootstrap do primeiro administrador. O fluxo real de acesso foi
+> validado no Preview em 13/09/2026; a Fase 3 está concluída.
+
+### Fase 3.5 — Shell da aplicação
+
+1. [x] Adaptar o design system do TailAdmin para o CSS do produto.
+2. [x] Criar sidebar e header responsivos sem dependência do React Router.
+3. [x] Integrar o usuário autenticado e o logout ao menu de perfil.
+4. [x] Preservar o tema claro/escuro e a preferência do usuário.
+5. [x] Criar a navegação inicial de Início, Filas, Integrantes e Histórico.
+6. [x] Validar visualmente o shell no Preview em desktop e dispositivo móvel.
+7. [x] Adaptar a página de login ao mesmo design system.
+
+Os componentes foram copiados conceitualmente do catálogo e adaptados em
+`src/components/layout`; o produto não importa código de `src/template`. A
+paleta continua sendo a original do TailAdmin até a definição da identidade
+visual da empresa.
+
+Concluída quando a navegação, responsividade, menu do usuário e os dois temas
+forem validados no Preview.
+
+> Validada no Preview em 13/09/2026. Login por magic link com Resend, validação
+> do formulário, navegação, responsividade, menu do usuário e temas claro e
+> escuro estão funcionando; a Fase 3.5 está concluída.
 
 ### Fase 4 — Regras e testes unitários
 
@@ -410,7 +440,7 @@ de produção depende do Prisma, CI e separação dos segredos.
 - [x] PostgreSQL local inicia com um comando e mantém os dados.
 - [x] Migrations e seed recriam um banco vazio.
 - [ ] Nenhum segredo ou dado real está versionado.
-- [ ] Somente e-mails autorizados acessam páginas privadas.
+- [x] Somente e-mails autorizados acessam páginas privadas.
 - [ ] Regras das filas possuem testes unitários.
 - [ ] Formatação, lint, tipos, testes e build passam no CI.
 - [ ] Push direto em `develop` e `main` está bloqueado.

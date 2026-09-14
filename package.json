@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "quality": "npm run format:check && npm run lint && npm run typecheck && npm run build",
     "db:up": "docker compose up -d --wait db",
     "db:down": "docker compose down",
@@ -23,6 +23,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:bootstrap": "tsx prisma/bootstrap.ts",
     "db:studio": "prisma studio"
   },
   "engines": {
@@ -41,6 +42,8 @@
     "@prisma/client": "^7.10.0",
     "@react-jvectormap/core": "^1.0.4",
     "@react-jvectormap/world": "^1.1.2",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.116.0",
     "@tailwindcss/forms": "^0.5.10",
     "apexcharts": "^4.1.0",
     "dotenv": "^17.4.2",
