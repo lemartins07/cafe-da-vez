@@ -45,7 +45,8 @@ export async function provisionAuthorizedUser(user: User) {
             teamId: invitation.teamId,
           },
         },
-        update: { role: invitation.role, status: 'ACTIVE' },
+        // Signing in must not reactivate a membership paused by an admin.
+        update: { role: invitation.role },
         create: {
           profileId: user.id,
           role: invitation.role,
