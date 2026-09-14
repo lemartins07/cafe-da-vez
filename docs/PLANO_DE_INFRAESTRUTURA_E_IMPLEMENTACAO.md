@@ -348,13 +348,21 @@ do Next.js antes de entrar no Café da Vez.
 
 ### Fase 3 — Autenticação privada
 
-1. Configurar Supabase Auth para browser e servidor.
-2. Criar login, callback e logout.
-3. Proteger rotas privadas.
-4. Verificar `AllowedEmail`/`TeamMember` pelo Prisma.
-5. Testar usuário autorizado, não autorizado e anônimo.
+1. [x] Configurar o projeto Supabase e suas credenciais de Preview.
+2. [x] Configurar os clientes Supabase para browser, servidor e proxy.
+3. [x] Criar login por magic link, callback e logout.
+4. [x] Proteger rotas privadas.
+5. [x] Verificar `AllowedEmail`/`TeamMember` pelo Prisma.
+6. [x] Cadastrar o primeiro administrador.
+7. [x] Testar usuário autorizado, não autorizado e anônimo.
 
 Concluída quando somente um integrante ativo conseguir acessar a aplicação.
+
+> Estado em 13/09/2026: escolhido magic link com Supabase Auth. A integração SSR,
+> o callback PKCE, a proteção da aplicação e a autorização no Prisma estão
+> implementados e passam no build. O Supabase de Preview recebeu a migration
+> inicial e o bootstrap do primeiro administrador. O fluxo real de acesso foi
+> validado no Preview em 13/09/2026; a Fase 3 está concluída.
 
 ### Fase 4 — Regras e testes unitários
 
