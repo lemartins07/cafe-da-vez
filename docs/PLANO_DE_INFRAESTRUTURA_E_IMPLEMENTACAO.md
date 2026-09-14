@@ -364,6 +364,24 @@ Concluída quando somente um integrante ativo conseguir acessar a aplicação.
 > inicial e o bootstrap do primeiro administrador. O fluxo real de acesso foi
 > validado no Preview em 13/09/2026; a Fase 3 está concluída.
 
+### Fase 3.5 — Shell da aplicação
+
+1. [x] Adaptar o design system do TailAdmin para o CSS do produto.
+2. [x] Criar sidebar e header responsivos sem dependência do React Router.
+3. [x] Integrar o usuário autenticado e o logout ao menu de perfil.
+4. [x] Preservar o tema claro/escuro e a preferência do usuário.
+5. [x] Criar a navegação inicial de Início, Filas, Integrantes e Histórico.
+6. [ ] Validar visualmente o shell no Preview em desktop e dispositivo móvel.
+7. [ ] Adaptar a página de login ao mesmo design system.
+
+Os componentes foram copiados conceitualmente do catálogo e adaptados em
+`src/components/layout`; o produto não importa código de `src/template`. A
+paleta continua sendo a original do TailAdmin até a definição da identidade
+visual da empresa.
+
+Concluída quando a navegação, responsividade, menu do usuário e os dois temas
+forem validados no Preview.
+
 ### Fase 4 — Regras e testes unitários
 
 1. Extrair as regras da rotação para módulos de domínio.
@@ -418,7 +436,7 @@ de produção depende do Prisma, CI e separação dos segredos.
 - [x] PostgreSQL local inicia com um comando e mantém os dados.
 - [x] Migrations e seed recriam um banco vazio.
 - [ ] Nenhum segredo ou dado real está versionado.
-- [ ] Somente e-mails autorizados acessam páginas privadas.
+- [x] Somente e-mails autorizados acessam páginas privadas.
 - [ ] Regras das filas possuem testes unitários.
 - [ ] Formatação, lint, tipos, testes e build passam no CI.
 - [ ] Push direto em `develop` e `main` está bloqueado.

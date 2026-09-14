@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import { AppShell } from '@/components/layout/app-shell';
 import { requireActiveMember } from '@/features/auth/authorization';
 import { env } from '@/lib/env';
-import { logout } from './auth-actions';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -15,24 +15,32 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const { membership } = await requireActiveMember();
+  const { profile } = membership;
 
   return (
-    <html lang="pt-BR" data-app-environment={env.NEXT_PUBLIC_APP_ENV}>
+    <html
+      lang="pt-BR"
+      data-app-environment={env.NEXT_PUBLIC_APP_ENV}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{const t=localStorage.getItem('theme');const d=t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)}catch{}",
+          }}
+        />
+      </head>
       <body>
-        <header className="flex items-center justify-end border-b border-zinc-200 bg-white px-6 py-3">
-          <span className="mr-4 text-sm text-zinc-600">
-            {membership.profile.displayName}
-          </span>
-          <form action={logout}>
-            <button
-              className="text-sm font-semibold text-zinc-900"
-              type="submit"
-            >
-              Sair
-            </button>
-          </form>
-        </header>
-        {children}
+        <AppShell
+          user={{
+            displayName: profile.displayName,
+            email: profile.email,
+            role: membership.role,
+          }}
+        >
+          {children}
+        </AppShell>
       </body>
     </html>
   );
