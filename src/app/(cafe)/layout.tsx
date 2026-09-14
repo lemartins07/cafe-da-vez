@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/layout/app-shell';
 import { requireActiveMember } from '@/features/auth/authorization';
 import { env } from '@/lib/env';
-import './globals.css';
+import '@/styles/tailadmin.css';
 
 export const metadata: Metadata = {
   title: 'Café da Vez',

@@ -372,7 +372,7 @@ Concluída quando somente um integrante ativo conseguir acessar a aplicação.
 4. [x] Preservar o tema claro/escuro e a preferência do usuário.
 5. [x] Criar a navegação inicial de Início, Filas, Integrantes e Histórico.
 6. [ ] Validar visualmente o shell no Preview em desktop e dispositivo móvel.
-7. [ ] Adaptar a página de login ao mesmo design system.
+7. [x] Adaptar a página de login ao mesmo design system.
 
 Os componentes foram copiados conceitualmente do catálogo e adaptados em
 `src/components/layout`; o produto não importa código de `src/template`. A
