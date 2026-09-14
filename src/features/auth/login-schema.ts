@@ -5,7 +5,7 @@ export const loginSchema = z.object({
     .string()
     .trim()
     .min(1, 'Informe seu e-mail corporativo.')
-    .email('Informe um e-mail válido.')
+    .pipe(z.email('Informe um e-mail válido.'))
     .transform((email) => email.toLowerCase()),
 });
 
