@@ -1,15 +1,12 @@
-import { LoginSubmitButton } from '@/components/auth/login-submit-button';
+import { LoginForm } from '@/components/auth/login-form';
 import { LoginThemeToggle } from '@/components/auth/login-theme-toggle';
-import { requestMagicLink } from './actions';
 
 type LoginPageProps = {
   searchParams: Promise<{ error?: string; sent?: string }>;
 };
 
 const errorMessages: Record<string, string> = {
-  'invalid-email': 'Informe um e-mail válido.',
   'invalid-link': 'Este link é inválido ou expirou.',
-  'send-failed': 'Não foi possível enviar o link. Tente novamente.',
   unauthorized: 'Este e-mail não possui acesso ao Café da Vez.',
 };
 
@@ -61,21 +58,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </div>
           ) : null}
 
-          <form action={requestMagicLink} className="space-y-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
-              E-mail corporativo <span className="text-error-500">*</span>
-              <input
-                autoComplete="email"
-                autoFocus
-                className="mt-2 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-none placeholder:text-gray-400 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                name="email"
-                placeholder="voce@empresa.com"
-                required
-                type="email"
-              />
-            </label>
-            <LoginSubmitButton />
-          </form>
+          <LoginForm />
 
           <p className="mt-6 text-center text-xs leading-5 text-gray-400 sm:text-left">
             O link é temporário e pode ser usado somente uma vez.
