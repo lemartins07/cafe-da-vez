@@ -181,19 +181,13 @@ de teste separado.
 
 ## Estado atual e débitos conhecidos
 
-A separação principal já existe, mas ainda há pontos a alinhar:
+A separação principal existe. Na Fase 4, Vitest e Testing Library foram
+configurados, as regras iniciais de rotação receberam testes unitários e os
+componentes e a server action de login migraram para `src/features/auth`.
 
-- Vitest e Testing Library ainda não estão instalados.
-- Ainda não existem testes automatizados no produto.
-- Alguns componentes específicos de autenticação estão em
-  `src/components/auth`; eles deverão migrar para `src/features/auth/components`.
-- A server action de login está em `src/app`; ela deverá migrar para a feature de
-  autenticação para eliminar a dependência `components -> app`.
-- A camada de repositórios será introduzida junto das regras de rotação, somente
-  onde ajudar a separar domínio puro e transação Prisma.
-
-Esses débitos serão tratados gradualmente e não justificam uma reestruturação
-ampla do template ou do código já validado.
+A camada de repositórios será introduzida ao conectar as regras de rotação a uma
+transação Prisma, somente onde ajudar a separar o domínio puro da persistência.
+Isso não justifica uma reestruturação ampla do template ou do código já validado.
 
 ## Critério para novas abstrações
 

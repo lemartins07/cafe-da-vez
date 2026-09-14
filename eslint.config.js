@@ -7,6 +7,7 @@ const eslintConfig = defineConfig([
   ...nextTypeScript,
   globalIgnores([
     '.next/**',
+    'coverage/**',
     'out/**',
     'dist/**',
     'node_modules/**',
