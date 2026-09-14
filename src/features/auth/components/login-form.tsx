@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { requestMagicLink } from '@/app/(auth)/login/actions';
+import { requestMagicLink } from '@/features/auth/actions/request-magic-link';
 import { initialLoginState, loginSchema } from '@/features/auth/login-schema';
 import { LoginSubmitButton } from './login-submit-button';
 

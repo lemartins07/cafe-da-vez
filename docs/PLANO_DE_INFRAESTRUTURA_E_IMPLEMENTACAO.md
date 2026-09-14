@@ -388,12 +388,18 @@ forem validados no Preview.
 
 ### Fase 4 — Regras e testes unitários
 
-1. Extrair as regras da rotação para módulos de domínio.
-2. Instalar e configurar Vitest e Testing Library.
-3. Cobrir avanço, ciclo, salto, pausa e idempotência.
-4. Adicionar testes dos componentes interativos essenciais.
+1. [x] Extrair as regras da rotação para módulos de domínio.
+2. [x] Instalar e configurar Vitest e Testing Library.
+3. [x] Cobrir avanço, ciclo, salto, pausa e idempotência.
+4. [x] Adicionar testes dos componentes interativos essenciais.
 
 Concluída quando `npm run test` passar sem depender de serviços externos.
+
+> Concluída em 13/09/2026. O domínio puro em
+> `src/features/rotations/domain` cobre a seleção da vez e o avanço da fila. A
+> suíte Vitest roda sem serviços externos e inclui o schema de login e a
+> alternância de tema como cobertura de interface. A persistência transacional
+> das rotações será incluída junto da próxima funcionalidade de filas.
 
 ### Fase 5 — CI, preview e GitFlow
 

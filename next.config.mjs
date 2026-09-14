@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Node 24.18 does not preserve stdout from Next's detached TypeScript CLI.
+    useTypeScriptCli: false,
+  },
   reactStrictMode: true,
   typedRoutes: true,
   webpack(config) {

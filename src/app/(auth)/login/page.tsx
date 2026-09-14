@@ -1,5 +1,5 @@
-import { LoginForm } from '@/components/auth/login-form';
-import { LoginThemeToggle } from '@/components/auth/login-theme-toggle';
+import { LoginForm } from '@/features/auth/components/login-form';
+import { LoginThemeToggle } from '@/features/auth/components/login-theme-toggle';
 
 type LoginPageProps = {
   searchParams: Promise<{ error?: string; sent?: string }>;

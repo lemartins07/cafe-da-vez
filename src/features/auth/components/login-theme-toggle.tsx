@@ -35,7 +35,7 @@ export function LoginThemeToggle() {
         viewBox="0 0 24 24"
         width="20"
       >
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+        <path d="M21 12.79A9.21 9.21 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
       </svg>
     </button>
   );
