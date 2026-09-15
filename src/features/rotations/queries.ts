@@ -20,6 +20,7 @@ type RotationMemberView = {
 };
 
 export type RotationView = {
+  canComplete: boolean;
   currentMember: Pick<RotationMemberView, 'displayName' | 'profileId'> | null;
   id: string;
   members: readonly RotationMemberView[];
@@ -110,12 +111,27 @@ export async function getCurrentTeamRotations(): Promise<
     },
     _count: { _all: true },
   });
+  const skippedCounts = await prisma.turnEvent.groupBy({
+    by: ['rotationId', 'subjectId'],
+    where: {
+      action: 'SKIPPED',
+      rotationId: { in: buyRotationIds },
+    },
+    _count: { _all: true },
+  });
   const purchaseCountsByRotationId = new Map<string, Map<string, number>>();
   purchaseCounts.forEach((count) => {
     const countsByMemberId =
       purchaseCountsByRotationId.get(count.rotationId) ?? new Map();
     countsByMemberId.set(count.subjectId, count._count._all);
     purchaseCountsByRotationId.set(count.rotationId, countsByMemberId);
+  });
+  const skippedCountsByRotationId = new Map<string, Map<string, number>>();
+  skippedCounts.forEach((count) => {
+    const countsByMemberId =
+      skippedCountsByRotationId.get(count.rotationId) ?? new Map();
+    countsByMemberId.set(count.subjectId, count._count._all);
+    skippedCountsByRotationId.set(count.rotationId, countsByMemberId);
   });
 
   return rotationDefinitions.flatMap((definition) => {
@@ -136,6 +152,8 @@ export async function getCurrentTeamRotations(): Promise<
             members: rotationMembers,
             purchaseCountsByMemberId:
               purchaseCountsByRotationId.get(rotation.id) ?? new Map(),
+            skippedCountsByMemberId:
+              skippedCountsByRotationId.get(rotation.id) ?? new Map(),
           })
         : getCurrentRotationMember({
             currentPosition: rotation.currentPosition,
@@ -151,6 +169,8 @@ export async function getCurrentTeamRotations(): Promise<
             members: rotationMembers,
             purchaseCountsByMemberId:
               purchaseCountsByRotationId.get(rotation.id) ?? new Map(),
+            skippedCountsByMemberId:
+              skippedCountsByRotationId.get(rotation.id) ?? new Map(),
           }).flatMap((upcomingMember) => {
             const member = rotation.members.find(
               (rotationMember) =>
@@ -173,6 +193,9 @@ export async function getCurrentTeamRotations(): Promise<
           }));
 
     return {
+      canComplete:
+        membership.role === 'ADMIN' ||
+        currentMember?.id === membership.profileId,
       currentMember: currentMember
         ? {
             displayName:

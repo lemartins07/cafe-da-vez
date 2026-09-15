@@ -5,12 +5,15 @@ type AdvancePurchaseRotationInput = {
   currentPosition: number;
   members: readonly RotationMember[];
   purchaseCountsByMemberId: ReadonlyMap<string, number>;
+  skippedCountsByMemberId?: ReadonlyMap<string, number>;
 };
 
 type PurchaseRotationState = Pick<
   AdvancePurchaseRotationInput,
   'currentPosition' | 'members' | 'purchaseCountsByMemberId'
->;
+> & {
+  skippedCountsByMemberId?: ReadonlyMap<string, number>;
+};
 
 type PurchaseRotationForecastInput = PurchaseRotationState & {
   limit: number;
@@ -18,6 +21,14 @@ type PurchaseRotationForecastInput = PurchaseRotationState & {
 
 const isEligible = (member: RotationMember) =>
   member.active && member.status === 'ACTIVE';
+
+const effectiveTurnCount = (
+  memberId: string,
+  purchaseCountsByMemberId: ReadonlyMap<string, number>,
+  skippedCountsByMemberId?: ReadonlyMap<string, number>,
+) =>
+  (purchaseCountsByMemberId.get(memberId) ?? 0) +
+  (skippedCountsByMemberId?.get(memberId) ?? 0);
 
 function orderedFromCurrentPosition({
   currentPosition,
@@ -41,20 +52,29 @@ export function getCurrentPurchaseRotationMember({
   currentPosition,
   members,
   purchaseCountsByMemberId,
+  skippedCountsByMemberId,
 }: PurchaseRotationState) {
   const orderedMembers = orderedFromCurrentPosition({
     currentPosition,
     members,
   });
   const minimumPurchaseCount = Math.min(
-    ...orderedMembers.map(
-      (member) => purchaseCountsByMemberId.get(member.id) ?? 0,
+    ...orderedMembers.map((member) =>
+      effectiveTurnCount(
+        member.id,
+        purchaseCountsByMemberId,
+        skippedCountsByMemberId,
+      ),
     ),
   );
 
   return orderedMembers.find(
     (member) =>
-      (purchaseCountsByMemberId.get(member.id) ?? 0) === minimumPurchaseCount,
+      effectiveTurnCount(
+        member.id,
+        purchaseCountsByMemberId,
+        skippedCountsByMemberId,
+      ) === minimumPurchaseCount,
   );
 }
 
@@ -63,6 +83,7 @@ export function getPurchaseRotationForecast({
   limit,
   members,
   purchaseCountsByMemberId,
+  skippedCountsByMemberId,
 }: PurchaseRotationForecastInput) {
   const forecast: RotationMember[] = [];
   const simulatedCounts = new Map(purchaseCountsByMemberId);
@@ -73,6 +94,7 @@ export function getPurchaseRotationForecast({
       currentPosition: nextPosition,
       members,
       purchaseCountsByMemberId: simulatedCounts,
+      skippedCountsByMemberId,
     });
     if (!currentMember) break;
 
@@ -101,11 +123,13 @@ export function advancePurchaseRotationWhenBuyerIsCurrent({
   currentPosition,
   members,
   purchaseCountsByMemberId,
+  skippedCountsByMemberId,
 }: AdvancePurchaseRotationInput) {
   const currentMember = getCurrentPurchaseRotationMember({
     currentPosition,
     members,
     purchaseCountsByMemberId,
+    skippedCountsByMemberId,
   });
   if (currentMember?.id !== buyerId) {
     return { currentPosition, status: 'unchanged' as const };

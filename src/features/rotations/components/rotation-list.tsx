@@ -1,4 +1,5 @@
 import type { RotationView } from '@/features/rotations/queries';
+import { CurrentTurnActions } from './current-turn-actions';
 import { RecordPastPurchaseForm } from './record-past-purchase-form';
 import { ShuffleMakeCoffeeForm } from './shuffle-make-coffee-form';
 
@@ -87,6 +88,11 @@ function RotationCard({
         {canManageRotations && rotation.type === 'MAKE_COFFEE' ? (
           <ShuffleMakeCoffeeForm memberCount={rotation.members.length} />
         ) : null}
+        <CurrentTurnActions
+          canComplete={rotation.canComplete}
+          canManageRotations={canManageRotations}
+          type={rotation.type}
+        />
       </div>
 
       <div className="border-t border-gray-100 dark:border-gray-800">

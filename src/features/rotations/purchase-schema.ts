@@ -25,6 +25,32 @@ export const recordPastPurchaseSchema = z
 
 export const shuffleRotationSchema = z.object({ requestId: z.uuid() });
 
+export const processCurrentTurnSchema = z
+  .object({
+    purchasedCoffee: z.boolean(),
+    purchasedFilters: z.boolean(),
+    requestId: z.uuid(),
+    rotationType: z.enum(['MAKE_COFFEE', 'BUY_COFFEE']),
+  })
+  .superRefine((data, context) => {
+    if (
+      data.rotationType === 'BUY_COFFEE' &&
+      !data.purchasedCoffee &&
+      !data.purchasedFilters
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecione pelo menos um item comprado.',
+        path: ['purchasedCoffee'],
+      });
+    }
+  });
+
+export const skipCurrentTurnSchema = z.object({
+  requestId: z.uuid(),
+  rotationType: z.enum(['MAKE_COFFEE', 'BUY_COFFEE']),
+});
+
 export type RotationActionState =
   | { message?: string; status: 'idle' }
   | { actionId?: string; message: string; status: 'success' }

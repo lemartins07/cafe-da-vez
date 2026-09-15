@@ -110,4 +110,15 @@ describe('advancePurchaseRotationWhenBuyerIsCurrent', () => {
       }).map((member) => member.id),
     ).toEqual(['carla', 'bruno', 'carla']);
   });
+
+  it('considera um pulo como vez consumida sem somá-lo às compras reais', () => {
+    expect(
+      getCurrentPurchaseRotationMember({
+        currentPosition: 0,
+        members,
+        purchaseCountsByMemberId: new Map(),
+        skippedCountsByMemberId: new Map([['ana', 1]]),
+      }),
+    ).toMatchObject({ id: 'bruno' });
+  });
 });

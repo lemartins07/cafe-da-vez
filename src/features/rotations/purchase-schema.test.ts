@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { recordPastPurchaseSchema } from './purchase-schema';
+import {
+  processCurrentTurnSchema,
+  recordPastPurchaseSchema,
+} from './purchase-schema';
 
 const validPurchase = {
   occurredOn: '2020-09-14',
@@ -33,5 +36,27 @@ describe('recordPastPurchaseSchema', () => {
         occurredOn: '2999-01-01',
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('processCurrentTurnSchema', () => {
+  it('exige item somente ao concluir uma compra', () => {
+    expect(
+      processCurrentTurnSchema.safeParse({
+        purchasedCoffee: false,
+        purchasedFilters: false,
+        requestId: validPurchase.requestId,
+        rotationType: 'BUY_COFFEE',
+      }).success,
+    ).toBe(false);
+
+    expect(
+      processCurrentTurnSchema.safeParse({
+        purchasedCoffee: false,
+        purchasedFilters: false,
+        requestId: validPurchase.requestId,
+        rotationType: 'MAKE_COFFEE',
+      }).success,
+    ).toBe(true);
   });
 });
