@@ -11,6 +11,7 @@ import {
   type TeamActionState,
   teamIdSchema,
 } from '@/features/teams/team-schema';
+import { rotationDefinitions } from '@/features/rotations/domain/rotation-definitions';
 import { prisma } from '@/lib/prisma';
 
 function setActiveTeam(teamId: string) {
@@ -36,8 +37,16 @@ export async function createTeam(
   const { profile } = await requireAuthenticatedUser();
   const team = await prisma.$transaction(async (transaction) => {
     const createdTeam = await transaction.team.create({
-      data: { name: parsed.data.name },
-      select: { id: true },
+      data: {
+        name: parsed.data.name,
+        rotations: {
+          create: rotationDefinitions.map((rotation) => ({
+            name: rotation.name,
+            type: rotation.type,
+          })),
+        },
+      },
+      select: { id: true, rotations: { select: { id: true } } },
     });
 
     await transaction.teamMember.create({
@@ -47,6 +56,14 @@ export async function createTeam(
         status: 'ACTIVE',
         teamId: createdTeam.id,
       },
+    });
+
+    await transaction.rotationMember.createMany({
+      data: createdTeam.rotations.map((rotation) => ({
+        position: 0,
+        profileId: profile.id,
+        rotationId: rotation.id,
+      })),
     });
 
     return createdTeam;
