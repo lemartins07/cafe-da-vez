@@ -6,7 +6,8 @@ import { logout } from '@/app/(cafe)/auth-actions';
 type UserMenuProps = {
   displayName: string;
   email: string;
-  role: 'ADMIN' | 'MEMBER';
+  role: 'ADMIN' | 'MEMBER' | 'SYSTEM_ADMIN';
+  systemAdmin: boolean;
 };
 
 export function UserMenu({ displayName, email, role }: UserMenuProps) {
@@ -65,7 +66,11 @@ export function UserMenu({ displayName, email, role }: UserMenuProps) {
               {email}
             </p>
             <span className="mt-2 inline-flex rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
-              {role === 'ADMIN' ? 'Administrador' : 'Integrante'}
+              {role === 'SYSTEM_ADMIN'
+                ? 'Administrador do sistema'
+                : role === 'ADMIN'
+                  ? 'Administrador do time'
+                  : 'Integrante'}
             </span>
           </div>
           <form action={logout} className="mt-3">

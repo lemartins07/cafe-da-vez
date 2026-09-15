@@ -1,4 +1,9 @@
-# Configuração do magic link
+# Configuração legada do magic link
+
+> Este guia descreve o fluxo que está implantado no Preview em 13/09/2026, mas
+> ele foi substituído no escopo do produto em 14/09/2026. Não o use para novas
+> configurações. O fluxo desejado está em
+> [AUTH_PASSWORD_AND_TEAM_SETUP.md](./AUTH_PASSWORD_AND_TEAM_SETUP.md).
 
 O Café da Vez usa Supabase Auth com sessão em cookies e uma segunda camada de
 autorização no banco da aplicação. Autenticar no Supabase não é suficiente: o

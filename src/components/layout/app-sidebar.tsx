@@ -17,7 +17,7 @@ const navigation = [
   { href: '/historico' as Route, icon: 'history' as const, label: 'Histórico' },
 ] as const;
 
-export function AppSidebar() {
+export function AppSidebar({ systemAdmin }: { systemAdmin: boolean }) {
   const pathname = usePathname();
   const {
     closeMobileSidebar,
@@ -27,6 +27,17 @@ export function AppSidebar() {
     setIsHovered,
   } = useSidebar();
   const showLabels = isExpanded || isHovered || isMobileOpen;
+
+  const visibleNavigation = systemAdmin
+    ? [
+        ...navigation,
+        {
+          href: '/admin' as Route,
+          icon: 'members' as const,
+          label: 'Administração',
+        },
+      ]
+    : navigation;
 
   return (
     <aside
@@ -58,7 +69,7 @@ export function AppSidebar() {
           </p>
         ) : null}
         <ul className="flex flex-col gap-2">
-          {navigation.map((item) => {
+          {visibleNavigation.map((item) => {
             const active =
               item.href === '/'
                 ? pathname === '/'

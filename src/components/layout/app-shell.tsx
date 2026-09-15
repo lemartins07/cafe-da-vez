@@ -10,7 +10,8 @@ type AppShellProps = {
   user: {
     displayName: string;
     email: string;
-    role: 'ADMIN' | 'MEMBER';
+    role: 'ADMIN' | 'MEMBER' | 'SYSTEM_ADMIN';
+    systemAdmin: boolean;
   };
 };
 
@@ -20,7 +21,7 @@ function ShellContent({ children, user }: AppShellProps) {
 
   return (
     <div className="min-h-screen xl:flex">
-      <AppSidebar />
+      <AppSidebar systemAdmin={user.systemAdmin} />
       {isMobileOpen ? (
         <button
           aria-label="Fechar menu"

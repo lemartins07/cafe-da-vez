@@ -13,9 +13,25 @@ enum TeamRole {
   MEMBER
 }
 
+enum SystemRole {
+  USER
+  SYSTEM_ADMIN
+}
+
+enum TeamStatus {
+  ACTIVE
+  DISABLED
+}
+
 enum MemberStatus {
   ACTIVE
   PAUSED
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum RotationType {
@@ -33,31 +49,40 @@ enum TurnAction {
 }
 
 model Team {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String   @db.VarChar(120)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String     @db.VarChar(120)
+  status     TeamStatus @default(ACTIVE)
+  disabledAt DateTime?  @map("disabled_at") @db.Timestamptz(6)
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   allowedEmails AllowedEmail[]
+  joinRequests  TeamJoinRequest[]
   members       TeamMember[]
   rotations     Rotation[]
 
+  @@index([status])
   @@map("teams")
 }
 
 model Profile {
-  id          String   @id @db.Uuid
-  email       String   @unique @db.VarChar(320)
-  displayName String   @map("display_name") @db.VarChar(120)
-  avatarUrl   String?  @map("avatar_url") @db.Text
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                 String     @id @db.Uuid
+  email              String     @unique @db.VarChar(320)
+  displayName        String     @map("display_name") @db.VarChar(120)
+  avatarUrl          String?    @map("avatar_url") @db.Text
+  systemRole         SystemRole @default(USER) @map("system_role")
+  mustChangePassword Boolean    @default(false) @map("must_change_password")
+  createdAt          DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  memberships         TeamMember[]
-  rotationMemberships RotationMember[]
-  assignedTurnEvents  TurnEvent[]      @relation("TurnSubject")
-  performedTurnEvents TurnEvent[]      @relation("TurnPerformer")
+  memberships          TeamMember[]
+  joinRequests         TeamJoinRequest[] @relation("JoinRequestApplicant")
+  resolvedJoinRequests TeamJoinRequest[] @relation("JoinRequestResolver")
+  rotationMemberships  RotationMember[]
+  assignedTurnEvents   TurnEvent[]       @relation("TurnSubject")
+  performedTurnEvents  TurnEvent[]       @relation("TurnPerformer")
 
+  @@index([systemRole])
   @@map("profiles")
 }
 
@@ -89,6 +114,24 @@ model TeamMember {
   @@id([teamId, profileId])
   @@index([profileId])
   @@map("team_members")
+}
+
+model TeamJoinRequest {
+  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId       String            @map("team_id") @db.Uuid
+  profileId    String            @map("profile_id") @db.Uuid
+  status       JoinRequestStatus @default(PENDING)
+  requestedAt  DateTime          @default(now()) @map("requested_at") @db.Timestamptz(6)
+  resolvedAt   DateTime?         @map("resolved_at") @db.Timestamptz(6)
+  resolvedById String?           @map("resolved_by_id") @db.Uuid
+
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  profile    Profile  @relation("JoinRequestApplicant", fields: [profileId], references: [id], onDelete: Restrict)
+  resolvedBy Profile? @relation("JoinRequestResolver", fields: [resolvedById], references: [id], onDelete: Restrict)
+
+  @@index([profileId, status])
+  @@index([teamId, status])
+  @@map("team_join_requests")
 }
 
 model Rotation {

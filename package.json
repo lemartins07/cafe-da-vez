@@ -14,6 +14,9 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "quality": "npm run format:check && npm run lint && npm run typecheck && npm run build",
     "db:up": "docker compose up -d --wait db",
     "db:down": "docker compose down",
@@ -22,9 +25,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:seed": "prisma db seed",
-    "db:bootstrap": "tsx prisma/bootstrap.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "admin:grant": "prisma generate && tsx scripts/grant-system-admin.ts"
   },
   "engines": {
     "node": "24.x",
@@ -67,19 +69,25 @@
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.0.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/node": "24.3.0",
     "@types/pg": "^8.23.1",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
+    "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.4",
+    "jsdom": "^30.0.1",
     "postcss": "^8.5.2",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "prisma": "^7.10.0",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.23.13",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "vitest": "^5.0.0"
   },
   "overrides": {
     "react-helmet-async": {

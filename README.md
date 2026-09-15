@@ -40,9 +40,9 @@ Crie o arquivo local de variáveis a partir do exemplo versionado:
 cp .env.example .env.local
 ```
 
-As credenciais presentes no exemplo são exclusivas do PostgreSQL local. As
-variáveis do Supabase Auth poderão permanecer vazias até essa integração ser
-configurada. A configuração é validada com Zod no servidor.
+As credenciais presentes no exemplo são exclusivas do PostgreSQL local. Para a
+redefinição administrativa de senhas, `SUPABASE_SECRET_KEY` deve ser configurada
+somente no servidor. A configuração é validada com Zod.
 
 Instale as dependências e inicie o banco:
 
@@ -50,7 +50,6 @@ Instale as dependências e inicie o banco:
 npm ci
 npm run db:up
 npm run db:deploy
-npm run db:seed
 ```
 
 O PostgreSQL ficará disponível em `localhost:5432`. O volume Docker mantém os
@@ -110,20 +109,20 @@ npm run format
 
 ## Banco de dados
 
-| Comando               | Ação                                               |
-| --------------------- | -------------------------------------------------- |
-| `npm run db:up`       | Inicia o PostgreSQL local e aguarda o healthcheck  |
-| `npm run db:down`     | Para os containers e preserva os dados             |
-| `npm run db:logs`     | Acompanha os logs do PostgreSQL                    |
-| `npm run db:migrate`  | Cria e aplica migrations durante o desenvolvimento |
-| `npm run db:deploy`   | Aplica migrations já versionadas                   |
-| `npm run db:seed`     | Insere dados fictícios para desenvolvimento        |
-| `npm run db:studio`   | Abre o Prisma Studio                               |
-| `npm run db:generate` | Gera o Prisma Client                               |
-| `npm run db:reset`    | Remove containers e o volume de dados local        |
+| Comando                                | Ação                                               |
+| -------------------------------------- | -------------------------------------------------- |
+| `npm run db:up`                        | Inicia o PostgreSQL local e aguarda o healthcheck  |
+| `npm run db:down`                      | Para os containers e preserva os dados             |
+| `npm run db:logs`                      | Acompanha os logs do PostgreSQL                    |
+| `npm run db:migrate`                   | Cria e aplica migrations durante o desenvolvimento |
+| `npm run db:deploy`                    | Aplica migrations já versionadas                   |
+| `npm run db:studio`                    | Abre o Prisma Studio                               |
+| `npm run db:generate`                  | Gera o Prisma Client                               |
+| `npm run db:reset`                     | Remove containers e o volume de dados local        |
+| `npm run admin:grant -- --email EMAIL` | Concede administração global a um perfil existente |
 
 > `npm run db:reset` é destrutivo e apaga somente os dados do PostgreSQL local
-> deste projeto. Para recriá-los, execute `db:up`, `db:deploy` e `db:seed`.
+> deste projeto. Para recriá-los, execute `db:up` e `db:deploy`.
 
 Para alterar o modelo, edite `prisma/schema.prisma` e crie uma migration nomeada:
 
@@ -133,6 +132,19 @@ npm run db:migrate -- --name descricao_da_alteracao
 
 Não use `prisma db push` em produção. A Vercel usará as URLs de conexão do
 Supabase; o container Docker existe apenas no desenvolvimento local.
+
+## Administrador do sistema
+
+O papel global `SYSTEM_ADMIN` é independente do papel `ADMIN` de cada time. Após
+criar a conta e entrar ao menos uma vez, conceda o papel pelo e-mail normalizado:
+
+```bash
+npm run admin:grant -- --email voce@empresa.com
+```
+
+O painel `/admin` permite listar contas e times, desativar ou reativar times e
+definir senhas temporárias. A chave secreta do Supabase nunca pode usar o prefixo
+`NEXT_PUBLIC_` nem ser enviada ao navegador.
 
 ## Template base
 
