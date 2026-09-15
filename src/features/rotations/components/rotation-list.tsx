@@ -1,4 +1,12 @@
 import type { RotationView } from '@/features/rotations/queries';
+import { RecordPastPurchaseForm } from './record-past-purchase-form';
+import { ShuffleMakeCoffeeForm } from './shuffle-make-coffee-form';
+
+type RotationParticipant = {
+  displayName: string;
+  profileId: string;
+  status: 'ACTIVE' | 'PAUSED';
+};
 
 function RotationIcon({ type }: { type: RotationView['type'] }) {
   return type === 'MAKE_COFFEE' ? (
@@ -35,10 +43,20 @@ function RotationIcon({ type }: { type: RotationView['type'] }) {
   );
 }
 
-function RotationCard({ rotation }: { rotation: RotationView }) {
+function RotationCard({
+  canManageRotations,
+  rotation,
+}: {
+  canManageRotations: boolean;
+  rotation: RotationView;
+}) {
   const eligibleMembers = rotation.members.filter(
     (member) => member.active && member.status === 'ACTIVE',
   );
+  const listedMembers =
+    rotation.type === 'BUY_COFFEE'
+      ? rotation.upcomingMembers
+      : rotation.members;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -66,18 +84,23 @@ function RotationCard({ rotation }: { rotation: RotationView }) {
               } ativo${eligibleMembers.length === 1 ? '' : 's'} nesta fila.`
             : 'Adicione ou reative participantes para iniciar esta fila.'}
         </p>
+        {canManageRotations && rotation.type === 'MAKE_COFFEE' ? (
+          <ShuffleMakeCoffeeForm memberCount={rotation.members.length} />
+        ) : null}
       </div>
 
       <div className="border-t border-gray-100 dark:border-gray-800">
         <h3 className="px-5 pt-5 text-sm font-medium text-gray-800 sm:px-6 dark:text-white">
-          Ordem da fila
+          {rotation.type === 'BUY_COFFEE'
+            ? 'Próximas compras'
+            : 'Ordem da fila'}
         </h3>
-        {rotation.members.length > 0 ? (
+        {listedMembers.length > 0 ? (
           <ol className="mt-3 divide-y divide-gray-100 dark:divide-gray-800">
-            {rotation.members.map((member, index) => (
+            {listedMembers.map((member, index) => (
               <li
                 className="flex items-center justify-between gap-3 px-5 py-3 sm:px-6"
-                key={member.profileId}
+                key={`${member.profileId}-${index}`}
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600 dark:bg-white/10 dark:text-gray-300">
@@ -106,8 +129,12 @@ function RotationCard({ rotation }: { rotation: RotationView }) {
 }
 
 export function RotationList({
+  canManageRotations,
+  members,
   rotations,
 }: {
+  canManageRotations: boolean;
+  members: readonly RotationParticipant[];
   rotations: readonly RotationView[];
 }) {
   return (
@@ -124,9 +151,14 @@ export function RotationList({
       </div>
       <div className="mt-6 grid gap-5 xl:grid-cols-2 xl:gap-6">
         {rotations.map((rotation) => (
-          <RotationCard key={rotation.id} rotation={rotation} />
+          <RotationCard
+            canManageRotations={canManageRotations}
+            key={rotation.id}
+            rotation={rotation}
+          />
         ))}
       </div>
+      {canManageRotations ? <RecordPastPurchaseForm members={members} /> : null}
     </section>
   );
 }

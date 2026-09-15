@@ -171,21 +171,25 @@ model RotationMember {
 }
 
 model TurnEvent {
-  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  rotationId    String     @map("rotation_id") @db.Uuid
-  subjectId     String     @map("subject_id") @db.Uuid
-  subjectName   String     @map("subject_name") @db.VarChar(120)
-  action        TurnAction
-  reason        String?    @db.VarChar(500)
-  requestId     String     @unique @map("request_id") @db.Uuid
-  performedById String     @map("performed_by_id") @db.Uuid
-  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rotationId       String     @map("rotation_id") @db.Uuid
+  subjectId        String     @map("subject_id") @db.Uuid
+  subjectName      String     @map("subject_name") @db.VarChar(120)
+  action           TurnAction
+  reason           String?    @db.VarChar(500)
+  requestId        String     @unique @map("request_id") @db.Uuid
+  performedById    String     @map("performed_by_id") @db.Uuid
+  occurredOn       DateTime   @default(now()) @map("occurred_on") @db.Date
+  purchasedCoffee  Boolean?   @map("purchased_coffee")
+  purchasedFilters Boolean?   @map("purchased_filters")
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
 
   rotation    Rotation @relation(fields: [rotationId], references: [id], onDelete: Restrict)
   subject     Profile  @relation("TurnSubject", fields: [subjectId], references: [id], onDelete: Restrict)
   performedBy Profile  @relation("TurnPerformer", fields: [performedById], references: [id], onDelete: Restrict)
 
   @@index([rotationId, createdAt])
+  @@index([rotationId, occurredOn])
   @@index([subjectId])
   @@index([performedById])
   @@map("turn_events")

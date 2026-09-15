@@ -5,26 +5,30 @@ import {
   getCurrentRotationMember,
   type RotationMemberStatus,
 } from '@/features/rotations/domain/advance-rotation';
+import {
+  getCurrentPurchaseRotationMember,
+  getPurchaseRotationForecast,
+} from '@/features/rotations/domain/advance-purchase-rotation';
 import { rotationDefinitions } from '@/features/rotations/domain/rotation-definitions';
 import { prisma } from '@/lib/prisma';
 
-export type RotationView = {
-  currentMember: {
-    displayName: string;
-    profileId: string;
-  } | null;
-  id: string;
-  members: readonly {
-    active: boolean;
-    displayName: string;
-    profileId: string;
-    status: 'ACTIVE' | 'PAUSED';
-  }[];
-  name: string;
-  type: 'MAKE_COFFEE' | 'BUY_COFFEE';
+type RotationMemberView = {
+  active: boolean;
+  displayName: string;
+  profileId: string;
+  status: 'ACTIVE' | 'PAUSED';
 };
 
-async function ensureTeamRotations(teamId: string) {
+export type RotationView = {
+  currentMember: Pick<RotationMemberView, 'displayName' | 'profileId'> | null;
+  id: string;
+  members: readonly RotationMemberView[];
+  name: string;
+  type: 'MAKE_COFFEE' | 'BUY_COFFEE';
+  upcomingMembers: readonly RotationMemberView[];
+};
+
+export async function ensureTeamRotations(teamId: string) {
   const activeMembers = await prisma.teamMember.findMany({
     where: { status: 'ACTIVE', teamId },
     orderBy: { createdAt: 'asc' },
@@ -94,6 +98,25 @@ export async function getCurrentTeamRotations(): Promise<
   const rotationByType = new Map(
     rotations.map((rotation) => [rotation.type, rotation]),
   );
+  const buyRotationIds = rotations
+    .filter((rotation) => rotation.type === 'BUY_COFFEE')
+    .map((rotation) => rotation.id);
+  const purchaseCounts = await prisma.turnEvent.groupBy({
+    by: ['rotationId', 'subjectId'],
+    where: {
+      action: 'COMPLETED',
+      purchasedCoffee: { not: null },
+      rotationId: { in: buyRotationIds },
+    },
+    _count: { _all: true },
+  });
+  const purchaseCountsByRotationId = new Map<string, Map<string, number>>();
+  purchaseCounts.forEach((count) => {
+    const countsByMemberId =
+      purchaseCountsByRotationId.get(count.rotationId) ?? new Map();
+    countsByMemberId.set(count.subjectId, count._count._all);
+    purchaseCountsByRotationId.set(count.rotationId, countsByMemberId);
+  });
 
   return rotationDefinitions.flatMap((definition) => {
     const rotation = rotationByType.get(definition.type);
@@ -106,10 +129,48 @@ export async function getCurrentTeamRotations(): Promise<
       status: (memberStatusByProfileId.get(member.profileId) ??
         'PAUSED') as RotationMemberStatus,
     }));
-    const currentMember = getCurrentRotationMember({
-      currentPosition: rotation.currentPosition,
-      members: rotationMembers,
-    });
+    const currentMember =
+      definition.type === 'BUY_COFFEE'
+        ? getCurrentPurchaseRotationMember({
+            currentPosition: rotation.currentPosition,
+            members: rotationMembers,
+            purchaseCountsByMemberId:
+              purchaseCountsByRotationId.get(rotation.id) ?? new Map(),
+          })
+        : getCurrentRotationMember({
+            currentPosition: rotation.currentPosition,
+            members: rotationMembers,
+          });
+    const upcomingMembers =
+      definition.type === 'BUY_COFFEE'
+        ? getPurchaseRotationForecast({
+            currentPosition: rotation.currentPosition,
+            limit: rotationMembers.filter(
+              (member) => member.active && member.status === 'ACTIVE',
+            ).length,
+            members: rotationMembers,
+            purchaseCountsByMemberId:
+              purchaseCountsByRotationId.get(rotation.id) ?? new Map(),
+          }).flatMap((upcomingMember) => {
+            const member = rotation.members.find(
+              (rotationMember) =>
+                rotationMember.profileId === upcomingMember.id,
+            );
+            if (!member) return [];
+
+            return {
+              active: member.active,
+              displayName: member.profile.displayName,
+              profileId: member.profileId,
+              status: memberStatusByProfileId.get(member.profileId) ?? 'PAUSED',
+            };
+          })
+        : rotation.members.map((member) => ({
+            active: member.active,
+            displayName: member.profile.displayName,
+            profileId: member.profileId,
+            status: memberStatusByProfileId.get(member.profileId) ?? 'PAUSED',
+          }));
 
     return {
       currentMember: currentMember
@@ -130,6 +191,7 @@ export async function getCurrentTeamRotations(): Promise<
       })),
       name: rotation.name,
       type: rotation.type,
+      upcomingMembers,
     };
   });
 }
