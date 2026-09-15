@@ -29,7 +29,7 @@ Casos de uso das features
    |
    +────────> Prisma ─────> PostgreSQL/Supabase
    |
-   `────────> Supabase Auth / Resend
+   `────────> Supabase Auth
 ```
 
 ## Organização dos diretórios
@@ -163,6 +163,8 @@ Testing Library verificará comportamento observável:
 - estados de carregamento;
 - bloqueio de ações inválidas;
 - ações principais das filas.
+- cadastro por senha, criação de time e aprovação ou recusa de solicitação de
+  entrada.
 
 ### Integração
 
@@ -173,9 +175,21 @@ de teste separado.
 ## Segurança
 
 - Supabase comprova identidade; o banco da aplicação determina autorização.
+- `Profile.systemRole` controla permissões globais; `TeamMember.role` controla
+  permissões apenas dentro do time selecionado.
+- Ações globais exigem `SYSTEM_ADMIN` no servidor e nunca dependem apenas da UI.
 - Toda operação valida vínculo, status e papel no servidor.
 - `PAUSED` nunca é revertido implicitamente durante autenticação.
-- Respostas de login não revelam a lista de e-mails autorizados.
+- Uma conta autenticada sem `TeamMember` ativo não acessa dados de time.
+- Aprovar uma solicitação cria o vínculo de integrante e resolve a solicitação
+  na mesma transação.
+- O último administrador ativo não pode ser removido, pausado ou rebaixado.
+- Times desativados preservam seus dados e vínculos, mas não podem ser
+  descobertos, selecionados ou acessados.
+- Senhas não são manipuladas, registradas ou persistidas pelo Prisma; elas são
+  recebidas exclusivamente pelo Supabase Auth.
+- A redefinição assistida usa a API administrativa do Supabase no servidor,
+  define `mustChangePassword` e exige troca antes de qualquer outro acesso.
 - Banco e chaves administrativas são acessados apenas no servidor.
 - Entrada do cliente é sempre validada novamente no servidor.
 
@@ -184,6 +198,13 @@ de teste separado.
 A separação principal existe. Na Fase 4, Vitest e Testing Library foram
 configurados, as regras iniciais de rotação receberam testes unitários e os
 componentes e a server action de login migraram para `src/features/auth`.
+
+O login atual por magic link e a autorização por `AllowedEmail` foram
+substituídos como requisito por cadastro com senha, criação autônoma de time e
+solicitações de entrada aprovadas por administradores. A migração deve manter a
+feature `auth` como fronteira de identidade e criar uma feature de times ou
+solicitações para as regras de associação; regras puras de aprovação não devem
+depender de Supabase ou Prisma.
 
 A camada de repositórios será introduzida ao conectar as regras de rotação a uma
 transação Prisma, somente onde ajudar a separar o domínio puro da persistência.

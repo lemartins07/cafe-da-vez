@@ -25,9 +25,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:seed": "prisma db seed",
-    "db:bootstrap": "tsx prisma/bootstrap.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "admin:grant": "prisma generate && tsx scripts/grant-system-admin.ts"
   },
   "engines": {
     "node": "24.x",
