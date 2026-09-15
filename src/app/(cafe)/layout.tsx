@@ -37,6 +37,7 @@ export default async function RootLayout({
             displayName: profile.displayName,
             email: profile.email,
             role: membership.role,
+            systemAdmin: profile.systemRole === 'SYSTEM_ADMIN',
           }}
         >
           {children}

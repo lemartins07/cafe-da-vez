@@ -2,16 +2,16 @@ import { LoginForm } from '@/features/auth/components/login-form';
 import { LoginThemeToggle } from '@/features/auth/components/login-theme-toggle';
 
 type LoginPageProps = {
-  searchParams: Promise<{ error?: string; sent?: string }>;
+  searchParams: Promise<{ error?: string }>;
 };
 
 const errorMessages: Record<string, string> = {
-  'invalid-link': 'Este link é inválido ou expirou.',
-  unauthorized: 'Este e-mail não possui acesso ao Café da Vez.',
+  'magic-link-disabled': 'Este link não é mais aceito. Entre usando sua senha.',
+  unauthorized: 'Não foi possível validar sua sessão.',
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { error, sent } = await searchParams;
+  const { error } = await searchParams;
 
   return (
     <main className="relative flex min-h-screen bg-white dark:bg-gray-900">
@@ -28,26 +28,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
           <div className="mb-8">
             <p className="mb-2 text-sm font-medium text-brand-500">
-              Acesso exclusivo do time
+              Organize o café do seu time
             </p>
             <h1 className="text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90">
-              Entre pelo seu e-mail
+              Entre ou crie sua conta
             </h1>
             <p className="mt-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
-              Enviaremos um link de acesso seguro. Somente integrantes
-              autorizados poderão entrar.
+              Use seu e-mail e senha. Depois, crie um time ou solicite entrada
+              em um já existente.
             </p>
           </div>
-
-          {sent === '1' ? (
-            <div
-              className="mb-6 rounded-lg border border-success-200 bg-success-50 p-4 text-sm text-success-700 dark:border-success-500/20 dark:bg-success-500/10 dark:text-success-400"
-              role="status"
-            >
-              Se o e-mail estiver autorizado, o link chegará em alguns
-              instantes. Você já pode conferir sua caixa de entrada.
-            </div>
-          ) : null}
 
           {error ? (
             <div
@@ -61,7 +51,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <LoginForm />
 
           <p className="mt-6 text-center text-xs leading-5 text-gray-400 sm:text-left">
-            O link é temporário e pode ser usado somente uma vez.
+            O cadastro não exige confirmação por e-mail. O acesso aos dados de
+            cada time depende da aprovação de um administrador.
           </p>
         </div>
       </section>

@@ -8,7 +8,8 @@ type AppHeaderProps = {
   user: {
     displayName: string;
     email: string;
-    role: 'ADMIN' | 'MEMBER';
+    role: 'ADMIN' | 'MEMBER' | 'SYSTEM_ADMIN';
+    systemAdmin: boolean;
   };
 };
 

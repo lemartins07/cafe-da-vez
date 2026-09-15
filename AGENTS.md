@@ -82,6 +82,22 @@ src/template             Catálogo visual legado, somente para consulta
 prisma                   Schema, migrations, seed e bootstrap
 ```
 
+### Referência visual obrigatória
+
+- `src/template` é a referência canônica para telas, layouts, componentes de
+  interface, ícones e demais elementos visuais do Café da Vez.
+- Antes de criar ou alterar qualquer UI, localize e inspecione o equivalente no
+  template. Reproduza sua estrutura, classes, espaçamentos, ícones, estados e
+  comportamento visual; não substitua por uma versão apenas parecida.
+- O código do produto não deve importar diretamente de `src/template`. Quando
+  necessário, copie o elemento para `src/components` ou para a feature
+  correspondente, preservando fielmente sua implementação visual e adaptando
+  somente as dependências e regras do produto.
+- Não redesenhe, recrie ou troque ícones existentes no template. Extraia-os
+  para um local compartilhado do produto quando precisarem ser reutilizados.
+- Só crie um componente ou visual novo quando não houver equivalente no
+  template. Nesse caso, informe explicitamente essa ausência antes de editar.
+
 Direção das dependências:
 
 - `app` pode compor `features`, `components` e `lib`.
@@ -90,8 +106,9 @@ Direção das dependências:
   Supabase ou APIs do navegador.
 - Acesso ao banco e serviços externos deve ficar fora do domínio puro.
 - `components` compartilhados não devem conhecer rotas ou regras de uma feature.
-- Código do produto nunca deve importar de `src/template`; copie, simplifique e
-  adapte o componente necessário.
+- Código do produto nunca deve importar de `src/template`; copie o componente
+  necessário preservando sua referência visual e adapte apenas suas
+  dependências e regras de produto.
 - Código exclusivo do servidor deve usar `server-only` quando aplicável.
 - Credenciais e segredos nunca podem chegar a Client Components.
 

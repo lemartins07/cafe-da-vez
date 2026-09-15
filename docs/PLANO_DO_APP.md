@@ -82,21 +82,45 @@ etapa separada, com uma nova paleta baseada nas cores da empresa.
 
 O banco de dados, e não o sistema de arquivos da Vercel ou o armazenamento local do navegador, será a fonte oficial dos dados.
 
-## Controle de acesso
+## Controle de acesso e entrada em times
 
-O aplicativo não terá cadastro público. O acesso seguirá este fluxo:
+O aplicativo terá cadastro por e-mail e senha, sem confirmação de e-mail. Essa
+decisão elimina a dependência de entrega de e-mails externos, que não funciona
+no ambiente de trabalho atual. O e-mail continuará sendo um identificador único
+da conta, mas não será usado como prova de posse nem como mecanismo de convite.
 
-1. Um administrador convida o integrante pelo e-mail.
-2. O integrante recebe um link para acessar ou criar sua sessão.
-3. O sistema verifica se existe uma associação ativa entre o usuário e o time.
-4. Somente depois dessa verificação o usuário pode acessar os dados.
+O acesso aos dados de um time só será concedido após aprovação explícita de um
+administrador ativo daquele time. O fluxo será:
 
-Caso todos utilizem um domínio corporativo, a validação do domínio poderá ser usada como proteção adicional, mas não substituirá a lista de integrantes autorizados.
+1. A pessoa cria uma conta com e-mail e senha e inicia uma sessão.
+2. Sem um vínculo ativo, ela só pode criar um time ou solicitar entrada em um
+   time existente; não pode consultar dados operacionais.
+3. Ao criar um time, a pessoa criadora passa a ser integrante `admin` ativo na
+   mesma transação que cria o time.
+4. Para entrar em um time existente, a pessoa envia uma solicitação. Ela fica
+   com estado `pending` até que um administrador a aprove ou recuse.
+5. A aprovação cria ou atualiza o vínculo `team_member` como `member` ativo e
+   registra quem tomou a decisão. A recusa não cria vínculo com o time.
+
+Após autenticar, a pessoa verá uma listagem de times e poderá filtrá-la pelo
+nome. Essa listagem expõe somente o nome do time necessário para solicitar
+entrada; participantes, filas, histórico e outras informações operacionais só
+ficam disponíveis depois da aprovação.
+
+O modelo continuará permitindo que uma mesma conta pertença a mais de um time.
+Quando houver mais de um vínculo ativo, a aplicação deverá exigir a seleção do
+time em uso; nunca poderá escolher um vínculo arbitrariamente.
 
 Papéis inicialmente previstos:
 
 - `admin`: gerencia integrantes, filas e configurações;
 - `member`: consulta as filas e registra ações permitidas.
+
+Esses papéis são locais ao time. O papel global `system_admin`, armazenado no
+perfil, permite listar contas e times, desativar ou reativar times e redefinir o
+acesso de uma conta com senha temporária. O usuário deverá trocar essa senha no
+próximo acesso. Um administrador do sistema não se torna automaticamente membro
+ou administrador dos times.
 
 Todas as tabelas expostas à aplicação deverão usar Row Level Security (RLS):
 
@@ -104,6 +128,10 @@ Todas as tabelas expostas à aplicação deverão usar Row Level Security (RLS):
 - integrantes acessarão somente dados dos times dos quais fazem parte;
 - somente administradores executarão operações administrativas;
 - credenciais com privilégios administrativos permanecerão exclusivamente no servidor.
+
+O administrador que aprova solicitações não pode remover, pausar ou rebaixar o
+último administrador ativo do próprio time. A aprovação, a criação do vínculo e
+a atualização da solicitação devem ser atômicas.
 
 ## Modelo de dados inicial
 
@@ -126,6 +154,8 @@ Campos principais:
 - `id`, relacionado ao usuário de autenticação;
 - `display_name`;
 - `avatar_url`;
+- `system_role` (`user` ou `system_admin`);
+- `must_change_password`;
 - `created_at`.
 
 ### `team_members`
@@ -139,6 +169,24 @@ Campos principais:
 - `role` (`admin` ou `member`);
 - `status` (`active` ou `paused`);
 - `created_at`.
+
+### `team_join_requests`
+
+Registra pedidos de entrada antes que exista um vínculo de integrante.
+
+Campos principais:
+
+- `id`;
+- `team_id`;
+- `profile_id`;
+- `status` (`pending`, `approved` ou `rejected`);
+- `requested_at`;
+- `resolved_at`;
+- `resolved_by`, quando houver decisão.
+
+Haverá no máximo uma solicitação pendente por pessoa e time. Após uma recusa, a
+pessoa poderá enviar uma nova solicitação; o histórico das decisões anteriores
+deve ser preservado.
 
 ### `rotations`
 
@@ -195,8 +243,10 @@ O histórico deverá continuar legível mesmo depois que um integrante deixar o 
 
 ### Login
 
-- acesso por convite;
-- autenticação por link enviado ao e-mail ou provedor corporativo, a definir.
+- cadastro e login por e-mail e senha;
+- sem confirmação de e-mail;
+- tela de entrada para criar um time ou solicitar participação quando a conta
+  ainda não possuir vínculo ativo.
 
 ### Painel principal
 
@@ -214,7 +264,7 @@ O histórico deverá continuar legível mesmo depois que um integrante deixar o 
 ### Integrantes
 
 - lista de participantes;
-- convite e remoção;
+- lista de solicitações pendentes e ações de aprovar ou recusar;
 - pausa e reativação;
 - definição de papel.
 
@@ -229,8 +279,8 @@ O histórico deverá continuar legível mesmo depois que um integrante deixar o 
 
 1. Criar o projeto Next.js e configurar a qualidade de código.
 2. Configurar o Supabase e as migrations iniciais.
-3. Implementar autenticação privada e convites.
-4. Implementar o cadastro do time e de seus integrantes.
+3. Implementar cadastro e login por e-mail e senha, sem confirmação de e-mail.
+4. Implementar criação de time, solicitação de entrada e aprovação de integrantes.
 5. Implementar as duas filas independentes.
 6. Implementar concluir, pular, pausar, reativar e desfazer.
 7. Adicionar histórico e permissões administrativas.
@@ -240,7 +290,9 @@ O histórico deverá continuar legível mesmo depois que um integrante deixar o 
 
 ## Critérios de aceite do MVP
 
-- Somente pessoas convidadas e ativas conseguem entrar.
+- Uma conta sem vínculo ativo não consulta dados de nenhum time.
+- Quem cria um time torna-se seu administrador ativo.
+- Somente solicitações aprovadas geram integrantes ativos.
 - Usuários de um time não conseguem consultar dados de outro time.
 - As filas de preparo e compra funcionam de forma independente.
 - Concluir ou pular uma vez seleciona corretamente o próximo integrante ativo.
@@ -255,7 +307,7 @@ O histórico deverá continuar legível mesmo depois que um integrante deixar o 
 
 Estas decisões poderão ser tomadas antes ou durante a implementação sem alterar a arquitetura principal:
 
-- login por link enviado ao e-mail ou por Google/Microsoft corporativo;
+- recuperação e redefinição de senha sem depender de e-mail externo;
 - possibilidade de mais de um preparo de café por dia;
 - exigência de motivo ao pular uma vez;
 - registro de valor, itens e comprovante nas compras;

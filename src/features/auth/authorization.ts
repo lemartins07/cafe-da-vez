@@ -1,65 +1,59 @@
 import 'server-only';
 
 import type { User } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase/server';
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
+export const activeTeamCookieName = 'cafe-da-vez-active-team';
 
-export async function isEmailAllowed(email: string) {
-  return prisma.allowedEmail.findFirst({
-    where: { email: normalizeEmail(email) },
-    select: { id: true },
-  });
-}
+const displayNameFromEmail = (email: string) => email.split('@')[0];
 
-export async function provisionAuthorizedUser(user: User) {
-  if (!user.email) return false;
+export async function provisionProfile(user: User) {
+  if (!user.email) return null;
 
   const email = normalizeEmail(user.email);
-  const invitations = await prisma.allowedEmail.findMany({
-    where: { email },
-    select: { role: true, teamId: true },
-  });
-
-  if (invitations.length === 0) return false;
-
   const displayName =
     typeof user.user_metadata.name === 'string'
       ? user.user_metadata.name
-      : email.split('@')[0];
+      : displayNameFromEmail(email);
 
-  await prisma.$transaction(async (transaction) => {
-    await transaction.profile.upsert({
-      where: { id: user.id },
-      update: { displayName, email },
-      create: { displayName, email, id: user.id },
-    });
-
-    for (const invitation of invitations) {
-      await transaction.teamMember.upsert({
-        where: {
-          teamId_profileId: {
-            profileId: user.id,
-            teamId: invitation.teamId,
-          },
-        },
-        // Signing in must not reactivate a membership paused by an admin.
-        update: { role: invitation.role },
-        create: {
-          profileId: user.id,
-          role: invitation.role,
-          teamId: invitation.teamId,
-        },
-      });
-    }
+  const profileById = await prisma.profile.findUnique({
+    where: { id: user.id },
+    select: { id: true },
   });
 
-  return true;
+  if (profileById) {
+    return prisma.profile.update({
+      where: { id: user.id },
+      data: { displayName, email },
+    });
+  }
+
+  const profileByEmail = await prisma.profile.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+
+  if (profileByEmail) {
+    // Seeds and the former magic-link flow can leave a profile associated with
+    // an old Auth identifier. Updating the primary key cascades its relations.
+    return prisma.profile.update({
+      where: { email },
+      data: { displayName, id: user.id },
+    });
+  }
+
+  return prisma.profile.upsert({
+    where: { id: user.id },
+    create: { displayName, email, id: user.id },
+    update: { displayName, email },
+  });
 }
 
-export async function requireActiveMember() {
+async function getAuthenticatedUser() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -67,12 +61,55 @@ export async function requireActiveMember() {
 
   if (!user) redirect('/login');
 
-  const membership = await prisma.teamMember.findFirst({
-    where: { profileId: user.id, status: 'ACTIVE' },
-    select: { profile: true, role: true, teamId: true },
+  const profile = await provisionProfile(user);
+  if (!profile) redirect('/login');
+
+  return { profile, user };
+}
+
+export async function requireAuthenticatedUserForPasswordChange() {
+  return getAuthenticatedUser();
+}
+
+export async function requireAuthenticatedUser() {
+  const context = await getAuthenticatedUser();
+  if (context.profile.mustChangePassword) redirect('/change-password');
+
+  return context;
+}
+
+export async function requireSystemAdmin() {
+  const context = await requireAuthenticatedUser();
+  if (context.profile.systemRole !== 'SYSTEM_ADMIN') redirect('/');
+
+  return context;
+}
+
+export async function requireActiveMember() {
+  const { profile, user } = await requireAuthenticatedUser();
+  const activeMemberships = await prisma.teamMember.findMany({
+    where: {
+      profileId: profile.id,
+      status: 'ACTIVE',
+      team: { is: { status: 'ACTIVE' } },
+    },
+    include: { profile: true },
+    orderBy: { createdAt: 'asc' },
   });
 
-  if (!membership) redirect('/login?error=unauthorized');
+  if (activeMemberships.length === 0) {
+    if (profile.systemRole === 'SYSTEM_ADMIN') redirect('/admin');
+    redirect('/times');
+  }
 
-  return { membership, user };
+  const activeTeamId = (await cookies()).get(activeTeamCookieName)?.value;
+  const selectedMembership = activeTeamId
+    ? activeMemberships.find((membership) => membership.teamId === activeTeamId)
+    : undefined;
+
+  if (selectedMembership) return { membership: selectedMembership, user };
+
+  if (activeMemberships.length > 1) redirect('/times?selectTeam=1');
+
+  return { membership: activeMemberships[0], user };
 }

@@ -18,7 +18,7 @@ ambiente local, banco de dados, testes e fluxo de entrega.
 | Banco local      | PostgreSQL em Docker Compose                                      |
 | Banco hospedado  | PostgreSQL gerenciado pelo Supabase                               |
 | ORM              | Prisma ORM                                                        |
-| Autenticação     | Supabase Auth e lista de e-mails autorizados                      |
+| Autenticação     | Supabase Auth por e-mail e senha, sem confirmação de e-mail       |
 | Validação        | Zod no servidor                                                   |
 | Testes unitários | Vitest e Testing Library                                          |
 | Versionamento    | GitFlow simplificado                                              |
@@ -60,7 +60,6 @@ O filesystem da Vercel não será usado para persistência.
 - Next.js executado com `npm run dev`.
 - PostgreSQL executado pelo Docker Compose.
 - Prisma conectado por `DATABASE_URL`.
-- Seed contendo somente dados fictícios.
 - Projeto Supabase de desenvolvimento para autenticação.
 
 A aplicação será executada fora do container para preservar um desenvolvimento
@@ -111,7 +110,6 @@ Estrutura:
 prisma/
 ├── schema.prisma
 ├── migrations/
-└── seed.ts
 ```
 
 O cliente compartilhado ficará em `src/lib/prisma.ts`, evitando conexões duplicadas
@@ -120,12 +118,13 @@ durante o hot reload.
 Modelo inicial:
 
 - `Profile`: perfil ligado ao identificador do Supabase Auth;
-- `Team`: time;
-- `TeamMember`: integrante, papel e estado;
+- `Team`: time criado e administrado por seus integrantes;
+- `TeamMember`: vínculo aprovado, papel e estado;
+- `TeamJoinRequest`: solicitação pendente, aprovada ou recusada para entrar em
+  um time;
 - `Rotation`: fila de preparo ou compra;
 - `RotationMember`: participantes e ordem;
 - `TurnEvent`: histórico das ações;
-- `AllowedEmail`: pessoas autorizadas a entrar.
 
 O Prisma administrará apenas as tabelas da aplicação, nunca as tabelas internas do
 Supabase Auth.
@@ -146,20 +145,56 @@ npx prisma migrate deploy
 `prisma db push` não será usado em produção. Alterações destrutivas serão evitadas;
 primeiro adicionaremos a nova estrutura e somente depois removeremos a antiga.
 
-O seed local criará um time, integrantes, duas filas e alguns eventos fictícios.
+O banco local permanecerá vazio após as migrations. Dados de demonstração não
+serão incluídos no repositório nem inseridos automaticamente.
 
 ## Autenticação e autorização
 
-O Supabase Auth comprovará a identidade. A aplicação verificará `AllowedEmail` ou
-`TeamMember` antes de conceder acesso.
+O Supabase Auth comprovará a identidade por e-mail e senha. A opção de
+confirmação de e-mail será desabilitada no projeto Supabase; portanto, o
+cadastro cria uma conta apta a iniciar sessão sem depender de uma mensagem
+externa.
+
+A identidade não autoriza acesso a um time. A aplicação verificará um
+`TeamMember` ativo antes de conceder acesso aos dados daquele time. Contas sem
+vínculo ativo serão encaminhadas para a entrada de times, onde podem criar um
+time ou consultar uma listagem pesquisável pelo nome para enviar uma
+`TeamJoinRequest`. A listagem exibirá somente o nome do time.
 
 Papéis iniciais:
 
 - `ADMIN`: gerencia integrantes e filas;
 - `MEMBER`: consulta as filas e registra ações permitidas.
 
-Não haverá cadastro público nem painel administrativo no primeiro momento. Os
-e-mails autorizados poderão ser administrados diretamente no banco.
+Esses papéis pertencem a `TeamMember`. Separadamente, `Profile.systemRole`
+possui `USER` e `SYSTEM_ADMIN`. O administrador do sistema acessa o painel
+global para listar contas e times, desativar ou reativar times e redefinir
+acessos com senha temporária. Esse papel não cria vínculo automático com times.
+
+Qualquer pessoa que alcance o formulário poderá criar uma conta; isso não lhe
+concede acesso a dados de terceiros. Administradores ativos gerenciam as
+solicitações e integrantes apenas dos seus times, sempre no servidor. O último
+administrador ativo de um time não poderá ser removido, pausado ou rebaixado.
+
+A recuperação de senha não fará parte deste fluxo enquanto depender de envio de
+e-mail externo. A política alternativa (por exemplo, redefinição assistida por
+administrador) deve ser decidida antes da implementação.
+
+### Migração do fluxo atual
+
+O magic link e `AllowedEmail` existentes serão substituídos por uma migration
+nova, sem alterar migrations já aplicadas. A ordem segura é:
+
+1. criar `TeamJoinRequest` e os índices necessários;
+2. publicar cadastro/login por senha, criação de time e aprovação de pedidos;
+3. preservar `TeamMember` já existente como vínculo válido;
+4. retirar o uso de `AllowedEmail`, o bootstrap por e-mail e o magic link;
+5. em migration posterior, remover `AllowedEmail` depois de confirmar que não
+   restam referências no código ou nos dados necessários.
+
+Solicitações pendentes terão unicidade por pessoa e time. Em PostgreSQL, a
+permissão de novos pedidos após uma recusa exige um índice único parcial para
+apenas o estado `PENDING`; esse detalhe deverá ser incluído na migration SQL.
 
 Todas as consultas do Prisma ocorrerão no servidor. Credenciais do banco e chaves
 administrativas nunca serão enviadas ao navegador.
@@ -315,19 +350,19 @@ Concluída quando `npm ci`, lint, typecheck e build passarem em uma instalação
 1. [x] Criar `compose.yaml` com PostgreSQL e volume.
 2. [x] Instalar e configurar Prisma.
 3. [x] Criar o modelo inicial e `src/lib/prisma.ts`.
-4. [x] Criar migration e seed.
+4. [x] Criar migration inicial.
 5. [x] Adicionar scripts `db:*`.
 
-Concluída quando um banco vazio puder ser criado e populado somente pelos comandos
-documentados, preservando dados após reiniciar o container.
+Concluída quando um banco vazio puder ser criado somente pelos comandos
+documentados, preservando o schema após reiniciar o container.
 
 > Validada em 12/09/2026 com Docker Desktop e WSL 2. O PostgreSQL iniciou com
-> healthcheck saudável, a migration inicial e o seed foram aplicados e os dados
-> permaneceram no volume após destruir e recriar o container. Antes e depois do
-> reinício foram encontrados 3 perfis, 2 filas e 1 evento. Overrides temporários
-> atualizam `deepmerge-ts` e `mysql2`, dependências internas do Prisma CLI,
-> enquanto uma versão estável do Prisma com as correções não é publicada; eles
-> devem ser removidos assim que o Prisma incorporar essas versões.
+> healthcheck saudável e a migration inicial foram aplicados. Em 14/09/2026, o
+> seed foi removido do projeto e os dados de demonstração foram apagados; novas
+> instalações começam vazias. Overrides temporários atualizam `deepmerge-ts` e
+> `mysql2`, dependências internas do Prisma CLI, enquanto uma versão estável do
+> Prisma com as correções não é publicada; eles devem ser removidos assim que o
+> Prisma incorporar essas versões.
 
 ### Fase 2.5 — Separação do template
 
@@ -346,23 +381,31 @@ do Next.js antes de entrar no Café da Vez.
 > Validado em 11/09/2026 com build de produção e smoke tests HTTP em `/`,
 > `/template`, `/template/analytics` e `/template/images/logo/logo.svg`.
 
-### Fase 3 — Autenticação privada
+### Fase 3 — Autenticação e entrada autônoma em times
 
-1. [x] Configurar o projeto Supabase e suas credenciais de Preview.
+1. [x] Configurar o projeto Supabase e as credenciais de Preview.
 2. [x] Configurar os clientes Supabase para browser, servidor e proxy.
-3. [x] Criar login por magic link, callback e logout.
-4. [x] Proteger rotas privadas.
-5. [x] Verificar `AllowedEmail`/`TeamMember` pelo Prisma.
-6. [x] Cadastrar o primeiro administrador.
-7. [x] Testar usuário autorizado, não autorizado e anônimo.
+3. [x] Criar migration aditiva para solicitações de entrada e a estratégia de
+       retirada de `AllowedEmail`.
+4. [x] Habilitar cadastro e login por e-mail e senha sem confirmação de e-mail.
+5. [x] Proteger rotas por `TeamMember` ativo e encaminhar contas sem vínculo à
+       entrada de times.
+6. [x] Permitir criar um time com o criador como `ADMIN` ativo.
+7. [x] Permitir solicitar entrada, aprovar ou recusar solicitações de forma
+       atômica e impedir a remoção do último administrador ativo.
+8. [x] Cobrir schemas, regras de autorização e fluxos interativos relevantes com
+       testes sem serviços externos.
+9. [ ] Validar no Preview uma conta sem time, criador de time, pedido aprovado,
+       pedido recusado e integrante pausado.
 
-Concluída quando somente um integrante ativo conseguir acessar a aplicação.
+Concluída quando somente integrantes ativos acessarem os dados de um time, sem
+que criação de conta, login ou entrada no time dependam de e-mail externo.
 
-> Estado em 13/09/2026: escolhido magic link com Supabase Auth. A integração SSR,
-> o callback PKCE, a proteção da aplicação e a autorização no Prisma estão
-> implementados e passam no build. O Supabase de Preview recebeu a migration
-> inicial e o bootstrap do primeiro administrador. O fluxo real de acesso foi
-> validado no Preview em 13/09/2026; a Fase 3 está concluída.
+> Estado em 14/09/2026: a fase anterior, baseada em magic link e
+> `AllowedEmail`, foi substituída por cadastro com senha, onboarding de times e
+> solicitações aprovadas por administradores. A migration aditiva, o fluxo de
+> código e os testes automatizados foram concluídos. Falta configurar a
+> confirmação de e-mail no Supabase e validar o fluxo completo no Preview.
 
 ### Fase 3.5 — Shell da aplicação
 
@@ -426,7 +469,7 @@ após um novo deploy.
 ### Fase 7 — Documentação
 
 Atualizar o README com onboarding, comandos locais, migrations, GitFlow, ambientes,
-deploy, rollback e manutenção da lista de e-mails autorizados.
+deploy, rollback, cadastro por senha e gestão de solicitações de entrada.
 
 ## Ordem e dependências
 
@@ -444,9 +487,11 @@ de produção depende do Prisma, CI e separação dos segredos.
 
 - [x] `npm ci` instala o projeto de forma reproduzível.
 - [x] PostgreSQL local inicia com um comando e mantém os dados.
-- [x] Migrations e seed recriam um banco vazio.
+- [x] Migrations recriam um banco vazio.
 - [ ] Nenhum segredo ou dado real está versionado.
-- [x] Somente e-mails autorizados acessam páginas privadas.
+- [ ] Cadastro e login por senha funcionam sem confirmação de e-mail.
+- [ ] Somente integrantes ativos acessam dados de seus próprios times.
+- [ ] Criação de time e aprovação de entrada são atômicas e auditáveis.
 - [ ] Regras das filas possuem testes unitários.
 - [ ] Formatação, lint, tipos, testes e build passam no CI.
 - [ ] Push direto em `develop` e `main` está bloqueado.
@@ -462,8 +507,7 @@ de produção depende do Prisma, CI e separação dos segredos.
 
 Antes da autenticação:
 
-- Google Workspace, Microsoft 365 ou magic link;
-- e-mail do primeiro administrador.
+- política de recuperação de senha sem e-mail externo;
 
 Antes da produção:
 
