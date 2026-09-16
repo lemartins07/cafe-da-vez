@@ -66,21 +66,21 @@ A interface não deve alterar regras de ordenação, participação, histórico 
 
 Os valores concretos abaixo devem ser extraídos do template durante a implementação. Não criar uma segunda camada de estilos concorrente.
 
-| Aspecto | Definição obrigatória |
-| --- | --- |
-| Layout da aplicação | Reutilizar ou copiar fielmente o equivalente de navegação lateral, cabeçalho, área de conteúdo e comportamento de recolhimento. |
-| Cabeçalho de página | Utilizar o padrão equivalente de título, descrição, breadcrumb e ações; adaptar os textos à tarefa. |
-| Largura e grid | Preservar containers, colunas, gutters e breakpoints da referência escolhida. Evitar margens e larguras arbitrárias. |
-| Tipografia | Usar a família, os pesos, tamanhos e alturas de linha da referência para cada função: título, nome, corpo, label e ajuda. |
-| Espaçamento | Reproduzir classes e tokens de padding, margin e gap do equivalente. Não impor uma escala nova neste guia. |
-| Cores | Usar os tokens e classes existentes para superfícies, texto, destaque, bordas e estados semânticos. Não introduzir valores hexadecimais locais para “aproximar” o template. |
-| Cards | Preservar estrutura, cabeçalho, corpo, rodapé, bordas, raios e sombras do equivalente. Evitar cards aninhados sem referência existente. |
-| Botões | Usar as variantes existentes, com seu tamanho, alinhamento de ícone, foco, hover, loading e disabled. |
-| Ícones | Usar exatamente os ícones do template, preservando desenho, dimensões, traço e alinhamento. Não substituir por emoji. |
-| Formulários | Preservar labels, ajuda, mensagens, espaçamento, campos obrigatórios e apresentação de erro do equivalente. |
-| Listas e tabelas | Escolher o equivalente pela natureza dos dados; manter densidade, divisores, alinhamento e comportamento responsivo. |
-| Feedback e sobreposições | Reutilizar os equivalentes de alerta, confirmação, notificação, modal e estados vazios. |
-| Temas | Preservar tokens, classes e mecanismo de alternância de tema existentes; verificar os temas suportados pelo projeto. |
+| Aspecto                  | Definição obrigatória                                                                                                                                                       |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout da aplicação      | Reutilizar ou copiar fielmente o equivalente de navegação lateral, cabeçalho, área de conteúdo e comportamento de recolhimento.                                             |
+| Cabeçalho de página      | Utilizar o padrão equivalente de título, descrição, breadcrumb e ações; adaptar os textos à tarefa.                                                                         |
+| Largura e grid           | Preservar containers, colunas, gutters e breakpoints da referência escolhida. Evitar margens e larguras arbitrárias.                                                        |
+| Tipografia               | Usar a família, os pesos, tamanhos e alturas de linha da referência para cada função: título, nome, corpo, label e ajuda.                                                   |
+| Espaçamento              | Reproduzir classes e tokens de padding, margin e gap do equivalente. Não impor uma escala nova neste guia.                                                                  |
+| Cores                    | Usar os tokens e classes existentes para superfícies, texto, destaque, bordas e estados semânticos. Não introduzir valores hexadecimais locais para “aproximar” o template. |
+| Cards                    | Preservar estrutura, cabeçalho, corpo, rodapé, bordas, raios e sombras do equivalente. Evitar cards aninhados sem referência existente.                                     |
+| Botões                   | Usar as variantes existentes, com seu tamanho, alinhamento de ícone, foco, hover, loading e disabled.                                                                       |
+| Ícones                   | Usar exatamente os ícones do template, preservando desenho, dimensões, traço e alinhamento. Não substituir por emoji.                                                       |
+| Formulários              | Preservar labels, ajuda, mensagens, espaçamento, campos obrigatórios e apresentação de erro do equivalente.                                                                 |
+| Listas e tabelas         | Escolher o equivalente pela natureza dos dados; manter densidade, divisores, alinhamento e comportamento responsivo.                                                        |
+| Feedback e sobreposições | Reutilizar os equivalentes de alerta, confirmação, notificação, modal e estados vazios.                                                                                     |
+| Temas                    | Preservar tokens, classes e mecanismo de alternância de tema existentes; verificar os temas suportados pelo projeto.                                                        |
 
 A fidelidade deve abranger o conjunto visual. Copiar apenas o botão e recriar livremente seu card, espaçamento e estados não atende à referência obrigatória.
 
@@ -88,16 +88,16 @@ A fidelidade deve abranger o conjunto visual. Copiar apenas o botão e recriar l
 
 Usar português brasileiro, frases curtas, labels consistentes e verbos que descrevam o resultado da ação. Preferir nomes de exibição quando disponíveis; manter um fallback válido e acesso à identificação completa quando necessário.
 
-| Contexto | Texto recomendado | Observação |
-| --- | --- | --- |
-| Responsável atual | É a vez de | Acompanhado do nome real. |
-| Registro de preparo | Registrar preparo | Mais específico que “Concluir vez”. |
-| Registro de compra | Registrar compra | Abre ou conclui o fluxo conforme o contexto. |
-| Confirmação da compra | Confirmar compra | Usado após selecionar os itens. |
-| Registro retroativo | Registrar compra passada | Diferencia o fluxo da compra da vez. |
-| Próximos participantes | Na sequência | Deve excluir o atual se ele já estiver destacado separadamente. |
-| Usuário na fila | Você / Você é o próximo | Derivado da identidade e da posição reais. |
-| Ação indisponível | Selecione pelo menos um item comprado | Exemplo condicionado à validação real da compra. |
+| Contexto               | Texto recomendado                     | Observação                                                      |
+| ---------------------- | ------------------------------------- | --------------------------------------------------------------- |
+| Responsável atual      | É a vez de                            | Acompanhado do nome real.                                       |
+| Registro de preparo    | Registrar preparo                     | Mais específico que “Concluir vez”.                             |
+| Registro de compra     | Registrar compra                      | Abre ou conclui o fluxo conforme o contexto.                    |
+| Confirmação da compra  | Confirmar compra                      | Usado após selecionar os itens.                                 |
+| Registro retroativo    | Registrar compra passada              | Diferencia o fluxo da compra da vez.                            |
+| Próximos participantes | Na sequência                          | Deve excluir o atual se ele já estiver destacado separadamente. |
+| Usuário na fila        | Você / Você é o próximo               | Derivado da identidade e da posição reais.                      |
+| Ação indisponível      | Selecione pelo menos um item comprado | Exemplo condicionado à validação real da compra.                |
 
 “Pular vez” deve indicar a consequência real antes da execução quando houver impacto na ordem. Não afirmar que a pessoa irá ao final da fila sem confirmar essa regra no domínio.
 
@@ -135,26 +135,26 @@ A disponibilidade das ações depende das permissões reais. Ocultar ou desabili
 
 As propostas abaixo orientam organização; não adicionam funcionalidades automaticamente ao escopo.
 
-| Tela | Informação prioritária | Organização e interação |
-| --- | --- | --- |
-| Início | Situação do usuário nas filas e próxima ação relevante | Resumo enxuto, sem repetir integralmente Filas nem incluir indicadores decorativos. |
-| Filas | Responsável atual, registro da tarefa e sequência | Dois blocos independentes, com hierarquia consistente. |
-| Integrantes | Identificação, status e participação nas filas | Lista ou tabela equivalente; edição contextual conforme permissão. |
-| Histórico | Data, pessoa, tipo de registro e itens pertinentes | Tabela ou lista equivalente, com filtros apenas quando necessários e suportados. |
-| Administração | Configurações e operações de gestão existentes | Agrupar por finalidade; explicar os efeitos de mudanças de ordem e participação. |
+| Tela          | Informação prioritária                                 | Organização e interação                                                             |
+| ------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Início        | Situação do usuário nas filas e próxima ação relevante | Resumo enxuto, sem repetir integralmente Filas nem incluir indicadores decorativos. |
+| Filas         | Responsável atual, registro da tarefa e sequência      | Dois blocos independentes, com hierarquia consistente.                              |
+| Integrantes   | Identificação, status e participação nas filas         | Lista ou tabela equivalente; edição contextual conforme permissão.                  |
+| Histórico     | Data, pessoa, tipo de registro e itens pertinentes     | Tabela ou lista equivalente, com filtros apenas quando necessários e suportados.    |
+| Administração | Configurações e operações de gestão existentes         | Agrupar por finalidade; explicar os efeitos de mudanças de ordem e participação.    |
 
 ## 8. Estados, responsividade e acessibilidade
 
-| Estado | Comportamento esperado |
-| --- | --- |
-| Carregamento inicial | Usar o equivalente do template; distinguir carregamento de ausência de dados. |
-| Sem dados | Explicar a situação e oferecer ação pertinente, se permitida. |
-| Salvando | Impedir submissões duplicadas e usar o estado de progresso existente. |
-| Validação | Associar erro ao campo ou grupo correspondente e preservar os dados preenchidos. |
-| Falha de serviço | Informar que a operação falhou; permitir nova tentativa sem perda desnecessária de dados. |
-| Sucesso | Confirmar o resultado persistido e atualizar os dados afetados. |
+| Estado               | Comportamento esperado                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Carregamento inicial | Usar o equivalente do template; distinguir carregamento de ausência de dados.                                       |
+| Sem dados            | Explicar a situação e oferecer ação pertinente, se permitida.                                                       |
+| Salvando             | Impedir submissões duplicadas e usar o estado de progresso existente.                                               |
+| Validação            | Associar erro ao campo ou grupo correspondente e preservar os dados preenchidos.                                    |
+| Falha de serviço     | Informar que a operação falhou; permitir nova tentativa sem perda desnecessária de dados.                           |
+| Sucesso              | Confirmar o resultado persistido e atualizar os dados afetados.                                                     |
 | Estado desatualizado | Tratar conflito de fila sem registrar uma ação sobre responsável incorreto; orientar atualização quando necessário. |
-| Sem permissão | Apresentar o estado previsto e manter validação da autorização no servidor. |
+| Sem permissão        | Apresentar o estado previsto e manter validação da autorização no servidor.                                         |
 
 Preservar os breakpoints do template. Verificar uma largura mobile estreita, tablet e desktop; incluir nomes longos, filas maiores e mensagens de erro. Evitar rolagem horizontal da página. Em tabelas, utilizar o mecanismo responsivo existente sem ocultar informações essenciais.
 
@@ -166,15 +166,15 @@ Se a referência apresentar um problema de acessibilidade ou responsividade, reg
 
 A organização visual não altera os limites arquiteturais do projeto.
 
-| Camada | Responsabilidade e limites |
-| --- | --- |
-| `app` | Compor `features`, `components` e `lib`; conectar páginas e rotas. |
-| `features` | Concentrar comportamento específico da funcionalidade. Não importar arquivos de `app`. |
-| `features/*/domain` | Manter regras puras, sem React, Next.js, Prisma, Supabase ou APIs do navegador. |
-| Camada de acesso a dados e serviços | Manter banco e integrações fora do domínio puro, seguindo a estrutura existente do projeto. |
-| `components` compartilhados | Oferecer elementos reutilizáveis sem conhecer rotas ou regras de uma feature. Receber dados e callbacks quando apropriado. |
-| `lib` | Utilitários e integrações conforme a arquitetura existente; não usar como atalho para violar limites. |
-| `src/template` | Referência para inspeção e cópia fiel; nunca uma dependência do código do produto. |
+| Camada                              | Responsabilidade e limites                                                                                                 |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `app`                               | Compor `features`, `components` e `lib`; conectar páginas e rotas.                                                         |
+| `features`                          | Concentrar comportamento específico da funcionalidade. Não importar arquivos de `app`.                                     |
+| `features/*/domain`                 | Manter regras puras, sem React, Next.js, Prisma, Supabase ou APIs do navegador.                                            |
+| Camada de acesso a dados e serviços | Manter banco e integrações fora do domínio puro, seguindo a estrutura existente do projeto.                                |
+| `components` compartilhados         | Oferecer elementos reutilizáveis sem conhecer rotas ou regras de uma feature. Receber dados e callbacks quando apropriado. |
+| `lib`                               | Utilitários e integrações conforme a arquitetura existente; não usar como atalho para violar limites.                      |
+| `src/template`                      | Referência para inspeção e cópia fiel; nunca uma dependência do código do produto.                                         |
 
 Um botão compartilhado não deve saber como avançar a fila. A feature conecta o evento à operação autorizada; o domínio calcula suas regras sem depender da interface; a camada externa executa persistência e integrações.
 
@@ -186,15 +186,15 @@ Copiar um componente não autoriza copiar dependências inadequadas. Adaptar int
 
 Preencher na descrição da alteração ou no local de documentação já adotado pelo projeto:
 
-| Campo | Conteúdo a registrar |
-| --- | --- |
-| Tela ou fluxo | Nome e objetivo da alteração. |
-| Referência canônica | Caminhos reais inspecionados em `src/template`. |
+| Campo                  | Conteúdo a registrar                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| Tela ou fluxo          | Nome e objetivo da alteração.                                |
+| Referência canônica    | Caminhos reais inspecionados em `src/template`.              |
 | Elementos reutilizados | Layout, componentes, variantes, ícones e estados utilizados. |
-| Destino | Caminhos reais no produto; indicar reúso ou cópia. |
-| Adaptações | Conteúdo, dependências e regras de produto alteradas. |
-| Ausências | O que não tinha equivalente e quando isso foi informado. |
-| Verificação | Temas, larguras, estados e fluxos efetivamente verificados. |
+| Destino                | Caminhos reais no produto; indicar reúso ou cópia.           |
+| Adaptações             | Conteúdo, dependências e regras de produto alteradas.        |
+| Ausências              | O que não tinha equivalente e quando isso foi informado.     |
+| Verificação            | Temas, larguras, estados e fluxos efetivamente verificados.  |
 
 Não preencher referências por suposição. Se o template não estiver disponível, declarar essa limitação; não afirmar fidelidade visual com base somente em documentação pública do TailAdmin.
 
