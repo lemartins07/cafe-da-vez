@@ -1,10 +1,8 @@
-import { PagePlaceholder } from '@/components/layout/page-placeholder';
+import { PurchaseHistoryList } from '@/features/rotations/components/purchase-history-list';
+import { getCurrentTeamPurchaseHistory } from '@/features/rotations/history-queries';
 
-export default function HistoryPage() {
-  return (
-    <PagePlaceholder
-      description="Aqui ficará o registro das ações realizadas nas filas do time."
-      title="Histórico"
-    />
-  );
+export default async function HistoryPage() {
+  const purchases = await getCurrentTeamPurchaseHistory();
+
+  return <PurchaseHistoryList purchases={purchases} />;
 }

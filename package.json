@@ -5,6 +5,7 @@
   "type": "module",
   "packageManager": "npm@11.16.0",
   "scripts": {
+    "predev": "prisma generate",
     "dev": "next dev --webpack",
     "prebuild": "prisma generate",
     "build": "next build --webpack",

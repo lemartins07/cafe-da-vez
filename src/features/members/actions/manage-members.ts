@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { randomUUID } from 'node:crypto';
 import { requireActiveMember } from '@/features/auth/authorization';
 import { wouldRemoveLastActiveAdmin } from '@/features/members/domain/membership-policy';
 import {
@@ -9,6 +10,7 @@ import {
   updateMemberSchema,
 } from '@/features/members/member-schema';
 import { prisma } from '@/lib/prisma';
+import { ensureTeamRotations } from '@/features/rotations/queries';
 
 const unauthorizedState: MemberActionState = {
   message: 'Você não tem permissão para administrar integrantes.',
@@ -17,6 +19,8 @@ const unauthorizedState: MemberActionState = {
 
 function refreshMembersPage() {
   revalidatePath('/integrantes');
+  revalidatePath('/filas');
+  revalidatePath('/historico');
 }
 
 async function resolveJoinRequest(
@@ -34,7 +38,11 @@ async function resolveJoinRequest(
           teamId: membership.teamId,
         },
       },
-      select: { role: true, status: true },
+      select: {
+        profile: { select: { displayName: true } },
+        role: true,
+        status: true,
+      },
     });
 
     if (actor?.role !== 'ADMIN' || actor.status !== 'ACTIVE') {
@@ -143,6 +151,8 @@ export async function updateMember(
   const { membership } = await requireActiveMember();
   if (membership.role !== 'ADMIN') return unauthorizedState;
 
+  await ensureTeamRotations(membership.teamId);
+
   const outcome = await prisma.$transaction(async (transaction) => {
     const [actor, target] = await Promise.all([
       transaction.teamMember.findUnique({
@@ -152,7 +162,11 @@ export async function updateMember(
             teamId: membership.teamId,
           },
         },
-        select: { role: true, status: true },
+        select: {
+          profile: { select: { displayName: true } },
+          role: true,
+          status: true,
+        },
       }),
       transaction.teamMember.findUnique({
         where: {
@@ -161,7 +175,11 @@ export async function updateMember(
             teamId: membership.teamId,
           },
         },
-        select: { role: true, status: true },
+        select: {
+          profile: { select: { displayName: true } },
+          role: true,
+          status: true,
+        },
       }),
     ]);
 
@@ -198,6 +216,27 @@ export async function updateMember(
       },
       data: { role: parsed.data.role, status: parsed.data.status },
     });
+    if (target.status !== parsed.data.status) {
+      const rotations = await transaction.rotation.findMany({
+        where: { teamId: membership.teamId },
+        select: { id: true },
+      });
+      await transaction.turnEvent.createMany({
+        data: rotations.map((rotation) => ({
+          action: parsed.data.status === 'PAUSED' ? 'PAUSED' : 'RESUMED',
+          occurredOn: new Date(),
+          performedById: membership.profileId,
+          reason:
+            parsed.data.status === 'PAUSED'
+              ? 'Integrante pausado na fila.'
+              : 'Integrante reativado na fila.',
+          requestId: randomUUID(),
+          rotationId: rotation.id,
+          subjectId: parsed.data.profileId,
+          subjectName: target.profile.displayName,
+        })),
+      });
+    }
     return 'updated' as const;
   });
 

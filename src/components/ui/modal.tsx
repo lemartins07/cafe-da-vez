@@ -3,10 +3,12 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
 export function Modal({
+  className = '',
   children,
   isOpen,
   onClose,
 }: {
+  className?: string;
   children: ReactNode;
   isOpen: boolean;
   onClose: () => void;
@@ -41,7 +43,7 @@ export function Modal({
         type="button"
       />
       <div
-        className="relative w-full max-w-[584px] rounded-3xl bg-white p-5 lg:p-10 dark:bg-gray-900"
+        className={`relative w-full max-w-[584px] rounded-3xl bg-white p-5 lg:p-10 dark:bg-gray-900 ${className}`}
         onClick={(event) => event.stopPropagation()}
         ref={modalRef}
       >

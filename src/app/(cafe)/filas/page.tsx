@@ -1,10 +1,19 @@
-import { PagePlaceholder } from '@/components/layout/page-placeholder';
+import { RotationList } from '@/features/rotations/components/rotation-list';
+import { getCurrentTeamRotations } from '@/features/rotations/queries';
+import { getCurrentTeamMembers } from '@/features/members/queries';
 
-export default function QueuesPage() {
+export default async function QueuesPage() {
+  const [rotations, teamMembers] = await Promise.all([
+    getCurrentTeamRotations(),
+    getCurrentTeamMembers(),
+  ]);
+
   return (
-    <PagePlaceholder
-      description="Aqui serão exibidas as filas de quem prepara e de quem compra o café."
-      title="Filas"
+    <RotationList
+      canManageRotations={teamMembers.canManageMembers}
+      members={teamMembers.members}
+      rotations={rotations}
+      viewerProfileId={teamMembers.currentProfileId}
     />
   );
 }
