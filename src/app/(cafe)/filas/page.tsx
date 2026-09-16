@@ -13,6 +13,7 @@ export default async function QueuesPage() {
       canManageRotations={teamMembers.canManageMembers}
       members={teamMembers.members}
       rotations={rotations}
+      viewerProfileId={teamMembers.currentProfileId}
     />
   );
 }

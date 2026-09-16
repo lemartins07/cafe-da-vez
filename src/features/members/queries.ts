@@ -37,6 +37,7 @@ export async function getCurrentTeamMembers() {
 
   return {
     canManageMembers: membership.role === 'ADMIN',
+    currentProfileId: membership.profileId,
     members: members.map<TeamMemberView>((teamMember) => ({
       displayName: teamMember.profile.displayName,
       email: teamMember.profile.email,

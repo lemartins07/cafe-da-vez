@@ -10,7 +10,7 @@ vi.mock('@/features/rotations/actions/manage-rotations', () => ({
 afterEach(cleanup);
 
 describe('CurrentTurnActions', () => {
-  it('exige um item antes de concluir a compra atual', () => {
+  it('exige um item antes de confirmar a compra atual', () => {
     render(
       <CurrentTurnActions
         canComplete
@@ -19,8 +19,10 @@ describe('CurrentTurnActions', () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar compra' }));
+
     const completeButton = screen.getByRole('button', {
-      name: 'Concluir vez',
+      name: 'Confirmar compra',
     });
     expect(completeButton).toBeDisabled();
     expect(
@@ -41,9 +43,16 @@ describe('CurrentTurnActions', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Pular vez' })).toBeEnabled();
+    const skipButton = screen.getByRole('button', { name: 'Pular vez' });
+    expect(skipButton).toBeEnabled();
+    fireEvent.click(skipButton);
+
+    expect(screen.getByRole('heading', { name: 'Pular vez' })).toBeVisible();
     expect(
-      screen.queryByRole('button', { name: 'Concluir vez' }),
+      screen.getByRole('button', { name: 'Confirmar pulo' }),
+    ).toBeEnabled();
+    expect(
+      screen.queryByRole('button', { name: 'Registrar preparo' }),
     ).not.toBeInTheDocument();
   });
 });
