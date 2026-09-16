@@ -60,21 +60,50 @@ export function CurrentTurnActions({
   canManageRotations: boolean;
   type: 'MAKE_COFFEE' | 'BUY_COFFEE';
 }) {
-  const [completeState, completeAction, isCompleting] = useActionState(
-    completeCurrentTurn,
-    initialRotationActionState,
-  );
-  const [skipState, skipAction, isSkipping] = useActionState(
-    skipCurrentTurn,
-    initialRotationActionState,
-  );
   const [isPurchaseOpen, setIsPurchaseOpen] = useState(false);
   const [isSkipOpen, setIsSkipOpen] = useState(false);
   const [purchasedCoffee, setPurchasedCoffee] = useState(false);
   const [purchasedFilters, setPurchasedFilters] = useState(false);
-  const [completeRequestId] = useState(() => crypto.randomUUID());
-  const [skipRequestId] = useState(() => crypto.randomUUID());
+  const [completeRequestId, setCompleteRequestId] = useState(() =>
+    crypto.randomUUID(),
+  );
+  const [skipRequestId, setSkipRequestId] = useState(() => crypto.randomUUID());
   const hasItems = purchasedCoffee || purchasedFilters;
+
+  const completeWithRefresh = async (
+    previousState: RotationActionState,
+    formData: FormData,
+  ) => {
+    const result = await completeCurrentTurn(previousState, formData);
+
+    if (result.status === 'success') {
+      setCompleteRequestId(crypto.randomUUID());
+    }
+
+    return result;
+  };
+
+  const skipWithRefresh = async (
+    previousState: RotationActionState,
+    formData: FormData,
+  ) => {
+    const result = await skipCurrentTurn(previousState, formData);
+
+    if (result.status === 'success') {
+      setSkipRequestId(crypto.randomUUID());
+    }
+
+    return result;
+  };
+
+  const [completeState, completeAction, isCompleting] = useActionState(
+    completeWithRefresh,
+    initialRotationActionState,
+  );
+  const [skipState, skipAction, isSkipping] = useActionState(
+    skipWithRefresh,
+    initialRotationActionState,
+  );
 
   if (!canComplete && !canManageRotations) return null;
 
